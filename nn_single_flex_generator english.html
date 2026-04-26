@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NN Single Flex – Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{--or:#E8620A;--or2:#c94d00;--dk:#1a1a1a;--lt:#f5f4f1;--wh:#ffffff;--gr:#888888;--bd:#e2e0db;--gn:#2d7d46;--rd:#c0392b;--bl:#3498db;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--lt);color:var(--dk);min-height:100vh;}
+
+.header{background:var(--dk);padding:16px 40px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.3);}
+.h-logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--or);}
+.h-sub{font-size:11px;color:#aaa;letter-spacing:2px;text-transform:uppercase;border-left:1px solid #444;padding-left:14px;}
+.h-spacer{flex:1;}
+.lang-toggle{display:flex;gap:0;border:1.5px solid #444;border-radius:8px;overflow:hidden;}
+.lang-btn{padding:7px 14px;background:transparent;border:none;color:#aaa;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:1px;}
+.lang-btn.active{background:var(--or);color:#fff;}
+.lang-btn:hover:not(.active){background:#2a2a2a;color:#fff;}
+
+.main{max-width:1320px;margin:0 auto;padding:24px 20px;display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;}
+
+.inp{background:var(--wh);border-radius:18px;padding:22px 18px;box-shadow:0 4px 28px rgba(0,0,0,.07);position:sticky;top:70px;}
+.pt{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.pt::after{content:'';flex:1;height:2px;background:var(--or);}
+.fg{margin-bottom:14px;}
+.fl{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gr);margin-bottom:5px;display:block;}
+.fi{width:100%;padding:10px 12px;border:1.5px solid var(--bd);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--dk);background:var(--lt);transition:all .2s;outline:none;}
+.fi:focus{border-color:var(--or);background:var(--wh);box-shadow:0 0 0 3px rgba(232,98,10,.08);}
+.fh{font-size:10px;color:var(--gr);margin-top:3px;}
+
+.period-sel{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:14px;}
+.ps-btn{padding:9px 4px;border:1.5px solid var(--bd);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--gr);background:var(--lt);cursor:pointer;text-align:center;transition:all .2s;}
+.ps-btn.active{border-color:var(--or);color:var(--or);background:#fff8f5;}
+.ps-btn:hover:not(.active){border-color:var(--or);color:var(--or);}
+
+.sw{background:var(--lt);border-radius:10px;padding:11px;margin-bottom:14px;}
+.sr{display:flex;align-items:center;gap:10px;margin-top:6px;}
+input[type=range]{flex:1;accent-color:var(--or);cursor:pointer;}
+.sv{font-size:14px;font-weight:600;color:var(--or);min-width:30px;text-align:right;}
+
+.gb{width:100%;padding:13px;background:var(--or);color:var(--wh);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s;margin-top:2px;}
+.gb:hover{background:var(--or2);transform:translateY(-2px);box-shadow:0 8px 22px rgba(232,98,10,.35);}
+
+.exp-panel{display:none;background:var(--wh);border-radius:14px;padding:13px 16px;margin-top:10px;box-shadow:0 2px 14px rgba(0,0,0,.06);}
+.exp-panel.on{display:block;}
+.ep-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gr);margin-bottom:9px;}
+.ep-btns{display:flex;gap:7px;}
+.ep-btn{flex:1;padding:11px 6px;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .2s;}
+.ep-btn:hover{transform:translateY(-2px);}
+.ep-btn:disabled{opacity:.55;cursor:wait;transform:none!important;}
+.ep-pptx{background:#C43E1C;color:#fff;}
+.ep-pptx:hover{background:#a33517;box-shadow:0 5px 18px rgba(196,62,28,.35);}
+.ep-pdf{background:#1a5276;color:#fff;}
+.ep-pdf:hover{background:#154360;box-shadow:0 5px 18px rgba(26,82,118,.35);}
+
+.placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:440px;text-align:center;}
+.phi{font-size:64px;opacity:.15;margin-bottom:16px;}
+.pht{font-size:20px;font-family:'Playfair Display',serif;font-weight:700;color:#bbb;}
+.phs{font-size:13px;color:#ccc;margin-top:6px;}
+
+.cc{background:var(--dk);border-radius:18px;padding:20px 24px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;}
+.cc::before{content:'NN';position:absolute;right:-6px;top:-16px;font-family:'Playfair Display',serif;font-size:120px;font-weight:900;color:rgba(232,98,10,.07);line-height:1;pointer-events:none;}
+.ctag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--or);font-weight:600;margin-bottom:3px;}
+.cname{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:12px;}
+.cstats{display:flex;gap:20px;flex-wrap:wrap;}
+.cv{font-size:19px;font-weight:700;color:var(--or);line-height:1;}
+.cl{font-size:10px;color:#aaa;margin-top:2px;}
+
+.pb{background:linear-gradient(135deg,var(--or),var(--or2));border-radius:18px;padding:18px 24px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.pm{flex:1;}
+.ptag{font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:.8;margin-bottom:3px;}
+.pamt{font-family:'Playfair Display',serif;font-size:40px;font-weight:900;line-height:1;}
+.psub{font-size:11px;opacity:.75;margin-top:3px;}
+.pann{text-align:center;background:rgba(255,255,255,.16);border-radius:12px;padding:11px 16px;}
+.pav{font-size:21px;font-weight:700;}
+.pal{font-size:10px;opacity:.75;margin-top:2px;}
+
+.st{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:13px;display:flex;align-items:center;gap:8px;}
+.badge{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;background:rgba(232,98,10,.1);color:var(--or);padding:2px 8px;border-radius:20px;}
+
+.scg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.sc{background:var(--wh);border-radius:14px;padding:16px 14px;box-shadow:0 4px 16px rgba(0,0,0,.07);border-top:3px solid transparent;transition:transform .2s;}
+.sc:hover{transform:translateY(-3px);}
+.sc.low{border-top-color:var(--bl);}.sc.mid{border-top-color:var(--or);}.sc.hi{border-top-color:var(--gn);}
+.sc-lb{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:9px;display:block;}
+.low .sc-lb{color:var(--bl);}.mid .sc-lb{color:var(--or);}.hi .sc-lb{color:var(--gn);}
+.sc-r{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;line-height:1;margin-bottom:2px;}
+.low .sc-r{color:var(--bl);}.mid .sc-r{color:var(--or);}.hi .sc-r{color:var(--gn);}
+.sc-rs{font-size:10px;color:var(--gr);margin-bottom:12px;}
+.sc-row{display:flex;justify-content:space-between;align-items:flex-end;padding:6px 0;border-bottom:1px solid var(--bd);}
+.sc-row:last-child{border-bottom:none;}
+.sc-rl{font-size:10px;color:var(--gr);max-width:55%;}
+.sc-rv{font-size:13px;font-weight:700;color:var(--dk);}
+.sc-rv.g{color:var(--gn);}.sc-rv.o{color:var(--or);}
+
+.chc{background:var(--wh);border-radius:18px;padding:20px 24px;box-shadow:0 4px 16px rgba(0,0,0,.07);margin-bottom:16px;}
+
+.ret-wrap{background:var(--wh);border-radius:18px;padding:20px 24px;box-shadow:0 4px 16px rgba(0,0,0,.07);margin-bottom:16px;overflow-x:auto;}
+.rt{width:100%;border-collapse:collapse;font-size:13px;}
+.rt th{text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gr);padding:0 10px 10px 0;border-bottom:2px solid var(--bd);}
+.rt td{padding:9px 10px 9px 0;border-bottom:1px solid var(--bd);font-weight:500;}
+.rt tr:last-child td{border-bottom:none;}
+.rt .low-c{color:var(--bl);font-weight:700;}.rt .mid-c{color:var(--or);font-weight:700;}.rt .hi-c{color:var(--gn);font-weight:700;}.rt .rd-c{color:var(--rd);}
+.rt .yr-l{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;}
+
+.ic2{background:#fff5f3;border:1.5px solid #ffd5c8;border-radius:18px;padding:18px 22px;margin-bottom:16px;}
+.icmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ib{background:var(--wh);border-radius:11px;padding:13px;text-align:center;}
+.ibv{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;margin-bottom:2px;}
+.ibl{font-size:10px;color:var(--gr);}
+.iyg{margin-top:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.iyc{background:var(--wh);border-radius:9px;padding:8px 4px;text-align:center;}
+.iy-yr{font-size:10px;color:var(--gr);font-weight:600;}
+.iy-rv{font-size:12px;font-weight:700;color:var(--rd);}
+.iy-ls{font-size:9px;color:var(--gr);}
+
+.bbc{background:var(--wh);border-radius:18px;padding:20px 24px;box-shadow:0 4px 16px rgba(0,0,0,.07);margin-bottom:16px;}
+.bbt{width:100%;border-collapse:collapse;font-size:13px;}
+.bbt th{text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gr);padding:0 0 9px;border-bottom:2px solid var(--bd);}
+.bbt td{padding:8px 0;border-bottom:1px solid var(--bd);font-weight:500;}
+.bbt tr:last-child td{border-bottom:none;}
+.bbt .bp{color:var(--or);font-weight:700;}
+
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.icard{background:var(--wh);border-radius:14px;padding:14px;box-shadow:0 4px 12px rgba(0,0,0,.06);}
+.ict{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gr);margin-bottom:4px;}
+.icv{font-size:13px;font-weight:700;color:var(--dk);}
+.icd{font-size:10px;color:var(--gr);margin-top:3px;line-height:1.5;}
+
+.disc{background:var(--wh);border-radius:12px;padding:13px 16px;font-size:10px;color:var(--gr);line-height:1.7;box-shadow:0 2px 10px rgba(0,0,0,.04);}
+
+@media(max-width:880px){.main{grid-template-columns:1fr;}.inp{position:static;}.scg{grid-template-columns:1fr;}.icmp{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="h-logo">NN Single Flex</div>
+  <div class="h-sub" id="hSub">Generator Παρουσίασης</div>
+  <div class="h-spacer"></div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('el',this)">🇬🇷 ΕΛ</button>
+    <button class="lang-btn" onclick="setLang('en',this)">🇬🇧 EN</button>
+  </div>
+</div>
+
+<div class="main">
+  <div>
+    <div class="inp">
+      <div class="pt" id="ptitle">Στοιχεία πελάτη</div>
+
+      <div class="fg">
+        <label class="fl" id="l-name">Ονοματεπώνυμο</label>
+        <input class="fi" type="text" id="cname" placeholder="π.χ. Γιώργος Παπαδόπουλος">
+      </div>
+      <div class="fg">
+        <label class="fl" id="l-age">Ηλικία συμβαλλόμενου (18–75)</label>
+        <input class="fi" type="number" id="age" min="18" max="75" placeholder="π.χ. 45">
+        <div class="fh" id="l-age-hint">Ηλικία ασφαλισμένου: 1 μήνας – 70 ετών</div>
+      </div>
+      <div class="fg">
+        <label class="fl" id="l-cap">Εφάπαξ κεφάλαιο (€) — ελάχ. €5.000</label>
+        <input class="fi" type="number" id="cap" min="5000" placeholder="π.χ. 50000">
+      </div>
+
+      <div class="fg">
+        <label class="fl" id="l-period">Χρονικό διάστημα ανάλυσης</label>
+        <div class="period-sel">
+          <button class="ps-btn" onclick="setPeriod(10,this)">10 <span id="yr-lbl-10">έτη</span></button>
+          <button class="ps-btn" onclick="setPeriod(15,this)">15 <span id="yr-lbl-15">έτη</span></button>
+          <button class="ps-btn active" onclick="setPeriod(20,this)">20 <span id="yr-lbl-20">έτη</span></button>
+          <button class="ps-btn" onclick="setPeriod(25,this)">25 <span id="yr-lbl-25">έτη</span></button>
+        </div>
+      </div>
+
+      <div class="sw">
+        <label class="fl" id="l-infl">Πληθωρισμός (%)</label>
+        <div class="sr">
+          <input type="range" id="infl" min="1" max="6" step="0.5" value="3">
+          <span class="sv" id="inflv">3%</span>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="fl" id="l-strat">Επενδυτική στρατηγική</label>
+        <select class="fi" id="strat">
+          <option value="" id="so0">— Επιλογή —</option>
+          <option value="conservative" id="so1">Conservative (80% ομόλογα / 20% μετοχές)</option>
+          <option value="balanced" id="so2">Balanced (50% / 50%)</option>
+          <option value="appreciation" id="so3">Appreciation (10% / 90%)</option>
+          <option value="custom" id="so4">Προσαρμοσμένη επιλογή</option>
+        </select>
+      </div>
+
+      <button class="gb" id="goBtn" onclick="calc()">⚡ Δημιουργία παρουσίασης</button>
+    </div>
+
+    <div class="exp-panel" id="expPanel">
+      <div class="ep-title" id="ep-title">📤 Εξαγωγή παρουσίασης</div>
+      <div class="ep-btns">
+        <button class="ep-btn ep-pptx" id="btnP" onclick="exportPPTX()">📊 PowerPoint (.pptx)</button>
+        <button class="ep-btn ep-pdf"  id="btnF" onclick="exportPDF()">📄 PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="out">
+    <div class="placeholder">
+      <div class="phi">📊</div>
+      <div class="pht" id="ph-t">Η παρουσίαση σας περιμένει</div>
+      <div class="phs" id="ph-s">Συμπληρώστε τα στοιχεία και πατήστε «Δημιουργία παρουσίασης»</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TRANSLATIONS ──
+const T = {
+  el: {
+    hSub:'Generator Παρουσίασης', ptitle:'Στοιχεία πελάτη',
+    lName:'Ονοματεπώνυμο', lAge:'Ηλικία συμβαλλόμενου (18–75)',
+    lAgeHint:'Ηλικία ασφαλισμένου: 1 μήνας – 70 ετών',
+    lCap:'Εφάπαξ κεφάλαιο (€) — ελάχ. €5.000', lPeriod:'Χρονικό διάστημα ανάλυσης',
+    lInfl:'Πληθωρισμός (%)', lStrat:'Επενδυτική στρατηγική',
+    so0:'— Επιλογή —', so1:'Conservative (80% ομόλογα / 20% μετοχές)',
+    so2:'Balanced (50% / 50%)', so3:'Appreciation (10% / 90%)', so4:'Προσαρμοσμένη επιλογή',
+    goBtn:'⚡ Δημιουργία παρουσίασης', epTitle:'📤 Εξαγωγή παρουσίασης',
+    phT:'Η παρουσίαση σας περιμένει', phS:'Συμπληρώστε τα στοιχεία και πατήστε «Δημιουργία παρουσίασης»',
+    yrLbl:'έτη', namePh:'π.χ. Γιώργος Παπαδόπουλος', agePh:'π.χ. 45', capPh:'π.χ. 50000',
+    // Results
+    tag:'NN Single Flex · Εφάπαξ ασφάλιστρο · Ανάλυση',
+    years:'χρόνια', age:'Ηλικία', capital:'Κεφάλαιο', monthlyPct:'Μηνιαίο %',
+    period:'Διάστημα', strategy:'Στρατηγική',
+    payoutTag:'Μηνιαία παροχή · παθητικό εισόδημα', perMonth:'κάθε μήνα',
+    pctLabel:'ποσοστό', ageLabel:'ηλικία', yearsLabel:'ετών',
+    annualPayout:'ετήσια παροχή',
+    scenTitle:'Σενάρια απόδοσης', low:'Χαμηλή', mid:'Μεσαία', high:'Υψηλή',
+    scenario:'εκδοχή', avgReturn:'μ.ε. ετήσια απόδοση',
+    portfolioVal:'Αξία χαρτοφυλακίου', totalPayouts:'Σύνολο παροχών', totalBenefit:'Συνολικό όφελος',
+    chartTitle:'Εξέλιξη χαρτοφυλακίου',
+    tableTitle:'Αναλυτικά αποτελέσματα ανά περίοδο', tableSubtitle:'κεφάλαιο + παροχές',
+    colPeriod:'Περίοδος', colLow:'Χαμηλή 2,5%\nΑξία χαρτ.', colMid:'Μεσαία 5,5%\nΑξία χαρτ.',
+    colHigh:'Υψηλή 10%\nΑξία χαρτ.', colPayouts:'Σύνολο Παροχών', colBank:'Αξία Τράπεζα\n(πληθ. %r%)',
+    inflTitle:'Εναλλακτικά: κεφάλαιο στην τράπεζα',
+    inflSub:'Απώλεια αγοραστικής δύναμης · πληθωρισμός %r%/έτος',
+    todayVal:'Αρχικό κεφάλαιο σήμερα', futureVal:'Πραγματική αξία σε %Y% χρόνια',
+    yrsLabel:'+%y% έτη', loss:'-%v%',
+    bbTitle:'Ποσοστά εξαγοράς', bbSub:'ρευστότητα',
+    bbYear:'Έτος', bbPct:'Ποσοστό', bbAmt:'Εκτιμώμενο ποσό',
+    bbNote:'* Από 7ο έτος: 100% εξαγορά. Ποσά ενδεικτικά βάσει αρχικού κεφαλαίου.',
+    yearSuffix:'ο έτος', yearPlus:'7ο+ έτος',
+    feat1t:'Έκτακτη καταβολή', feat1v:'€1.000 ελάχ.', feat1d:'Μετά από 1 ημέρα · ελάχ. διάστημα 30 ημέρες',
+    feat2t:'Σοβαρή ασθένεια', feat2v:'Χωρίς ποινή', feat2d:'7 ασθένειες · ολική ή μερική εξαγορά από 1ο έτος',
+    feat3t:'Παροχή θανάτου', feat3v:'5% αξίας λογαριασμού', feat3d:'Ελάχ. €1.000 · Μέγ. €10.000 · στους δικαιούχους',
+    feat4t:'Χρεώσεις', feat4v:'€25/έτος + 2% (1ο–10ο)', feat4d:'1,5% ετησίως από 11ο–20ο έτος',
+    disclaimer:'⚠️ <strong>Σημείωση:</strong> Τα σενάρια (2,5% | 5,5% | 10%) είναι ενδεικτικά και δεν αποτελούν εγγύηση μελλοντικών αποδόσεων. Παράγωγο εργαλείο — δεν υποκαθιστά την επίσημη προσφορά της NN Ελλάς.',
+    bank:'Τράπεζα', chartYearLabel:'Έτος',
+    // PPTX
+    pptxCover1:'Απλά και γρήγορα', pptxClient:'ΣΤΟΙΧΕΙΑ ΠΕΛΑΤΗ',
+    pptxClientF:'Πελάτης', pptxAgeF:'Ηλικία', pptxCapF:'Κεφάλαιο',
+    pptxPayF:'Μηνιαία Παροχή', pptxPeriodF:'Διάστημα ανάλυσης', pptxStratF:'Στρατηγική',
+    pptxS2title:'Μηνιαία Παροχή — Παθητικό Εισόδημα',
+    pptxS2monthly:'ΜΗΝΙΑΙΑ ΠΑΡΟΧΗ', pptxS2permonth:'κάθε μήνα',
+    pptxS2annual:'ΕΤΗΣΙΑ ΠΑΡΟΧΗ', pptxS2total:'ΣΥΝΟΛΙΚΗ ΠΑΡΟΧΗ',
+    pptxS2ageTbl:'ΠΟΣΟΣΤΟ ΑΝΑ ΗΛΙΚΙΑ',
+    pptxS3title:'Σενάρια Απόδοσης',
+    pptxS3avg:'μ.ε. ετήσια απόδοση', pptxS3portVal:'Αξία χαρτοφυλακίου',
+    pptxS3payouts:'Σύνολο παροχών', pptxS3total:'Συνολικό Όφελος',
+    pptxS4title:'Αναλυτικά Αποτελέσματα ανά Περίοδο',
+    pptxS4period:'Περίοδος',
+    pptxS5title:'Σύγκριση: NN Single Flex vs Κεφάλαιο στην Τράπεζα',
+    pptxS5tag:'NN SINGLE FLEX — Μεσαία Εκδοχή 5,5%',
+    pptxS5bankTag:'ΤΡΑΠΕΖΑ — Πληθωρισμός',
+    pptxS5payM:'Μηνιαία παροχή', pptxS5payA:'Ετήσια παροχή',
+    pptxS5payT:'Σύνολο παροχών', pptxS5portV:'Αξία χαρτοφυλακίου',
+    pptxS5total:'Συνολικό Όφελος', pptxS5valIn:'Αξία σε',
+    pptxS6title:'Ρευστότητα & Χαρακτηριστικά Προγράμματος',
+    pptxS6bbTitle:'ΠΟΣΟΣΤΑ ΕΞΑΓΟΡΑΣ',
+    pptxS6bbYr:'Έτος', pptxS6bbPct:'%', pptxS6bbAmt:'Ποσό',
+    pptxS6yr:'ο έτος', pptxS6yr7:'7ο έτος και άνω',
+    pptxS6f1t:'Έκτακτη καταβολή', pptxS6f1v:'€1.000 ελάχ.', pptxS6f1d:'Μετά από 1 ημέρα · ελάχ. 30 ημέρες',
+    pptxS6f2t:'Σοβαρή ασθένεια', pptxS6f2v:'Χωρίς ποινή εξαγοράς', pptxS6f2d:'7 ασθένειες · από 1ο έτος',
+    pptxS6f3t:'Παροχή θανάτου', pptxS6f3v:'5% αξίας λογ/σμού', pptxS6f3d:'Ελάχ. €1.000 · Μέγ. €10.000',
+    pptxS6f4t:'Χρεώσεις', pptxS6f4v:'€25/έτος + 2% (1ο–10ο)', pptxS6f4d:'1,5% ετησίως από 11ο–20ο έτος',
+    pptxNote:'Σημείωση: ',
+    pptxDisclaimer:'Τα σενάρια (2,5% | 5,5% | 10%) είναι ενδεικτικά. Δεν αποτελούν εγγύηση μελλοντικών αποδόσεων. Παράγωγο εργαλείο — δεν υποκαθιστά την επίσημη προσφορά της NN Ελλάς.',
+    yrsSuffix:'χρόνια'
+  },
+  en: {
+    hSub:'Presentation Generator', ptitle:'Client Details',
+    lName:'Full Name', lAge:'Policyholder Age (18–75)',
+    lAgeHint:'Insured age: 1 month – 70 years',
+    lCap:'Single Premium (€) — min. €5,000', lPeriod:'Analysis Period',
+    lInfl:'Inflation Rate (%)', lStrat:'Investment Strategy',
+    so0:'— Select —', so1:'Conservative (80% bonds / 20% equities)',
+    so2:'Balanced (50% / 50%)', so3:'Appreciation (10% / 90%)', so4:'Custom allocation',
+    goBtn:'⚡ Generate Presentation', epTitle:'📤 Export Presentation',
+    phT:'Your presentation awaits', phS:'Fill in the details and click "Generate Presentation"',
+    yrLbl:'years', namePh:'e.g. George Papadopoulos', agePh:'e.g. 45', capPh:'e.g. 50000',
+    // Results
+    tag:'NN Single Flex · Single Premium · Analysis', years:'years',
+    age:'Age', capital:'Capital', monthlyPct:'Monthly %',
+    period:'Period', strategy:'Strategy',
+    payoutTag:'Monthly Benefit · Passive Income', perMonth:'per month',
+    pctLabel:'rate', ageLabel:'age', yearsLabel:'years old',
+    annualPayout:'annual benefit',
+    scenTitle:'Return Scenarios', low:'Low', mid:'Medium', high:'High',
+    scenario:'scenario', avgReturn:'avg. annual return',
+    portfolioVal:'Portfolio Value', totalPayouts:'Total Benefits', totalBenefit:'Total Gain',
+    chartTitle:'Portfolio Growth',
+    tableTitle:'Detailed Results by Period', tableSubtitle:'capital + benefits',
+    colPeriod:'Period', colLow:'Low 2.5%\nPortfolio Val.', colMid:'Medium 5.5%\nPortfolio Val.',
+    colHigh:'High 10%\nPortfolio Val.', colPayouts:'Total Benefits', colBank:'Bank Value\n(infl. %r%)',
+    inflTitle:'Alternative: Capital in the Bank',
+    inflSub:'Loss of purchasing power · inflation %r%/year',
+    todayVal:'Initial capital today', futureVal:'Real value in %Y% years',
+    yrsLabel:'+%y% yrs', loss:'-%v%',
+    bbTitle:'Surrender Values', bbSub:'liquidity',
+    bbYear:'Year', bbPct:'Rate', bbAmt:'Estimated Amount',
+    bbNote:'* From year 7+: 100% surrender. Amounts indicative based on initial capital.',
+    yearSuffix:'st/nd/rd year', yearPlus:'Year 7+',
+    feat1t:'Additional Deposit', feat1v:'€1,000 min.', feat1d:'After 1 day · min. 30-day interval',
+    feat2t:'Critical Illness', feat2v:'No surrender penalty', feat2d:'7 critical illnesses · full or partial surrender',
+    feat3t:'Death Benefit', feat3v:'5% of account value', feat3d:'Min. €1,000 · Max. €10,000 · paid to beneficiaries',
+    feat4t:'Programme Charges', feat4v:'€25/yr + 2% (yrs 1–10)', feat4d:'1.5% annually from years 11–20',
+    disclaimer:'⚠️ <strong>Note:</strong> The scenarios (2.5% | 5.5% | 10%) are indicative and do not constitute a guarantee of future returns. This tool does not replace the official NN Hellas offer.',
+    bank:'Bank', chartYearLabel:'Year',
+    // PPTX
+    pptxCover1:'Simple & Fast', pptxClient:'CLIENT DETAILS',
+    pptxClientF:'Client', pptxAgeF:'Age', pptxCapF:'Capital',
+    pptxPayF:'Monthly Benefit', pptxPeriodF:'Analysis Period', pptxStratF:'Strategy',
+    pptxS2title:'Monthly Benefit — Passive Income',
+    pptxS2monthly:'MONTHLY BENEFIT', pptxS2permonth:'per month',
+    pptxS2annual:'ANNUAL BENEFIT', pptxS2total:'TOTAL BENEFIT',
+    pptxS2ageTbl:'RATE BY AGE',
+    pptxS3title:'Portfolio Return Scenarios',
+    pptxS3avg:'avg. annual return', pptxS3portVal:'Portfolio Value',
+    pptxS3payouts:'Total Benefits', pptxS3total:'Total Gain',
+    pptxS4title:'Detailed Results by Period',
+    pptxS4period:'Period',
+    pptxS5title:'Comparison: NN Single Flex vs Capital in the Bank',
+    pptxS5tag:'NN SINGLE FLEX — Medium Scenario 5.5%',
+    pptxS5bankTag:'BANK — Inflation',
+    pptxS5payM:'Monthly benefit', pptxS5payA:'Annual benefit',
+    pptxS5payT:'Total benefits', pptxS5portV:'Portfolio value',
+    pptxS5total:'Total Gain', pptxS5valIn:'Value in',
+    pptxS6title:'Liquidity & Programme Features',
+    pptxS6bbTitle:'SURRENDER VALUES',
+    pptxS6bbYr:'Year', pptxS6bbPct:'%', pptxS6bbAmt:'Amount',
+    pptxS6yr:' year', pptxS6yr7:'Year 7 and above',
+    pptxS6f1t:'Additional Deposit', pptxS6f1v:'€1,000 min.', pptxS6f1d:'After 1 day · min. 30-day interval',
+    pptxS6f2t:'Critical Illness', pptxS6f2v:'No surrender penalty', pptxS6f2d:'7 critical illnesses · from year 1',
+    pptxS6f3t:'Death Benefit', pptxS6f3v:'5% of account value', pptxS6f3d:'Min. €1,000 · Max. €10,000',
+    pptxS6f4t:'Programme Charges', pptxS6f4v:'€25/yr + 2% (yrs 1–10)', pptxS6f4d:'1.5% annually from years 11–20',
+    pptxNote:'Note: ',
+    pptxDisclaimer:'Scenarios (2.5% | 5.5% | 10%) are indicative. They do not constitute a guarantee of future returns. This tool does not replace the official NN Hellas offer.',
+    yrsSuffix:'years'
+  }
+};
+
+// ── DATA ──
+const PCT={18:.0021,19:.0021,20:.0021,21:.0021,22:.0021,23:.0021,24:.0021,25:.0021,26:.0022,27:.0022,28:.0022,29:.0022,30:.0022,31:.0022,32:.0022,33:.0023,34:.0023,35:.0023,36:.0023,37:.0023,38:.0023,39:.0024,40:.0024,41:.0024,42:.0024,43:.0024,44:.0025,45:.0025,46:.0025,47:.0025,48:.0026,49:.0026,50:.0026,51:.0027,52:.0027,53:.0027,54:.0028,55:.0028,56:.0029,57:.0029,58:.0029,59:.003,60:.003,61:.0031,62:.0031,63:.0032,64:.0033,65:.0033,66:.0034,67:.0035,68:.0035,69:.0036,70:.0037,71:.0038,72:.0039,73:.004,74:.0042,75:.0043};
+const BB={1:94,2:95,3:96,4:97,5:98,6:99,7:100};
+const SC_RATES=[.025,.055,.10];
+const SL={conservative:'Conservative',balanced:'Balanced',appreciation:'Appreciation',custom:'Custom',''  :'—'};
+
+let CH=null, LD=null, PERIOD=20, LANG='el';
+
+function fmt(n){return '€'+Math.round(n).toLocaleString('el-GR');}
+function t(k){return T[LANG][k]||T.el[k]||k;}
+
+document.getElementById('infl').oninput=function(){document.getElementById('inflv').textContent=this.value+'%';};
+
+function setPeriod(y,el){
+  PERIOD=y;
+  document.querySelectorAll('.ps-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function setLang(lang,el){
+  LANG=lang;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  applyTranslations();
+}
+
+function applyTranslations(){
+  const tx=T[LANG];
+  document.getElementById('hSub').textContent=tx.hSub;
+  document.getElementById('ptitle').textContent=tx.ptitle;
+  document.getElementById('l-name').textContent=tx.lName;
+  document.getElementById('l-age').textContent=tx.lAge;
+  document.getElementById('l-age-hint').textContent=tx.lAgeHint;
+  document.getElementById('l-cap').textContent=tx.lCap;
+  document.getElementById('l-period').textContent=tx.lPeriod;
+  document.getElementById('l-infl').textContent=tx.lInfl;
+  document.getElementById('l-strat').textContent=tx.lStrat;
+  document.getElementById('cname').placeholder=tx.namePh;
+  document.getElementById('age').placeholder=tx.agePh;
+  document.getElementById('cap').placeholder=tx.capPh;
+  document.getElementById('goBtn').textContent=tx.goBtn;
+  document.getElementById('ep-title').textContent=tx.epTitle;
+  document.getElementById('ph-t').textContent=tx.phT;
+  document.getElementById('ph-s').textContent=tx.phS;
+  ['so0','so1','so2','so3','so4'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=tx[id];});
+  ['10','15','20','25'].forEach(y=>{const el=document.getElementById('yr-lbl-'+y);if(el)el.textContent=tx.yrLbl;});
+}
+
+function proj(c,r,ap,Y){let v=c,a=[v];for(let y=1;y<=Y;y++){const cr=y<=10?.02:.015;v=v*(1+r)-25-v*cr-ap;if(v<0)v=0;a.push(v);}return a;}
+function inflArr(c,r,Y){let a=[c];for(let y=1;y<=Y;y++)a.push(c/Math.pow(1+r,y));return a;}
+
+function calc(){
+  const name=document.getElementById('cname').value.trim()||(LANG==='el'?'Πελάτης':'Client');
+  const age=parseInt(document.getElementById('age').value);
+  const cap=parseFloat(document.getElementById('cap').value);
+  const inflr=parseFloat(document.getElementById('infl').value)/100;
+  const strat=document.getElementById('strat').value;
+  const Y=PERIOD;
+  const tx=T[LANG];
+
+  if(!age||age<18||age>75){alert(LANG==='el'?'Παρακαλώ εισάγετε ηλικία 18–75':'Please enter age 18–75');return;}
+  if(!cap||cap<5000){alert(LANG==='el'?'Ελάχιστο κεφάλαιο €5.000':'Minimum capital €5,000');return;}
+
+  const pct=PCT[age]||PCT[75];
+  const mpay=cap*pct, apay=mpay*12;
+  const sd=SC_RATES.map(r=>proj(cap,r,apay,Y));
+  const id=inflArr(cap,inflr,Y);
+  const lbs=Array.from({length:Y+1},(_,i)=>tx.chartYearLabel+' '+i);
+  const tp=apay*Y;
+  LD={name,age,cap,inflr,strat,pct,mpay,apay,sd,id,lbs,tp,Y,lang:LANG};
+
+  const milestones=[];
+  if(Y>=10)milestones.push(10);if(Y>=15)milestones.push(15);
+  if(Y>=20)milestones.push(20);if(Y>=25)milestones.push(25);
+  if(!milestones.includes(Y))milestones.push(Y);
+
+  const scNames=[tx.low,tx.mid,tx.high];
+
+  let tableRows='';
+  milestones.forEach(yr=>{
+    const localTP=apay*yr;
+    tableRows+=`<tr>
+      <td class="yr-l">${yr} ${tx.yrLbl}</td>
+      <td class="low-c">${fmt(Math.max(0,sd[0][yr]))}</td>
+      <td class="mid-c">${fmt(Math.max(0,sd[1][yr]))}</td>
+      <td class="hi-c">${fmt(Math.max(0,sd[2][yr]))}</td>
+      <td>${fmt(localTP)}</td>
+      <td class="rd-c">${fmt(id[yr])}</td>
+    </tr>`;
+  });
+
+  const bb=[1,2,3,4,5,6,7].map(y=>({
+    yr: y>=7 ? tx.yearPlus : y+(LANG==='el'?tx.yearSuffix:tx.yearSuffix),
+    pct:BB[y], amt:fmt(cap*BB[y]/100)
+  }));
+
+  document.getElementById('out').innerHTML=`
+<div id="printArea">
+  <div class="cc">
+    <div class="ctag">NN Single Flex · ${tx.tag} ${Y} ${tx.years}</div>
+    <div class="cname">${name}</div>
+    <div class="cstats">
+      <div><div class="cv">${age}</div><div class="cl">${tx.age}</div></div>
+      <div><div class="cv">${fmt(cap)}</div><div class="cl">${tx.capital}</div></div>
+      <div><div class="cv">${(pct*100).toFixed(3)}%</div><div class="cl">${tx.monthlyPct}</div></div>
+      <div><div class="cv">${Y} ${tx.years}</div><div class="cl">${tx.period}</div></div>
+      <div><div class="cv">${SL[strat]}</div><div class="cl">${tx.strategy}</div></div>
+    </div>
+  </div>
+
+  <div class="pb">
+    <div class="pm">
+      <div class="ptag">${tx.payoutTag}</div>
+      <div class="pamt">${fmt(mpay)}</div>
+      <div class="psub">${tx.perMonth} · ${tx.ageLabel} ${age} ${tx.yearsLabel} · ${tx.pctLabel} ${(pct*100).toFixed(3)}%</div>
+    </div>
+    <div class="pann"><div class="pav">${fmt(apay)}</div><div class="pal">${tx.annualPayout}</div></div>
+  </div>
+
+  <div class="st">${tx.scenTitle} <span class="badge">${Y} ${tx.years}</span></div>
+  <div class="scg">
+    ${[0,1,2].map(i=>{const fv=Math.max(0,sd[i][Y]);const cls=['low','mid','hi'][i];return`<div class="sc ${cls}">
+      <span class="sc-lb">${scNames[i]} ${tx.scenario}</span>
+      <div class="sc-r">${(SC_RATES[i]*100).toFixed(1)}%</div>
+      <div class="sc-rs">${tx.avgReturn}</div>
+      <div class="sc-row"><span class="sc-rl">${tx.portfolioVal}</span><span class="sc-rv ${fv>0?'g':''}">${fmt(fv)}</span></div>
+      <div class="sc-row"><span class="sc-rl">${tx.totalPayouts}</span><span class="sc-rv g">${fmt(tp)}</span></div>
+      <div class="sc-row"><span class="sc-rl">${tx.totalBenefit}</span><span class="sc-rv o">${fmt(fv+tp)}</span></div>
+    </div>`;}).join('')}
+  </div>
+
+  <div class="chc">
+    <div class="st">${tx.chartTitle} <span class="badge">${Y} ${tx.years}</span></div>
+    <canvas id="mc" height="230"></canvas>
+  </div>
+
+  <div class="ret-wrap">
+    <div class="st">${tx.tableTitle} <span class="badge">${tx.tableSubtitle}</span></div>
+    <table class="rt">
+      <thead><tr>
+        <th>${tx.colPeriod}</th>
+        <th class="low-c">${tx.colLow.replace('\n','<br>')}</th>
+        <th class="mid-c">${tx.colMid.replace('\n','<br>')}</th>
+        <th class="hi-c">${tx.colHigh.replace('\n','<br>')}</th>
+        <th>${tx.colPayouts}</th>
+        <th class="rd-c">${tx.colBank.replace('%r%',(inflr*100).toFixed(1)+'%').replace('\n','<br>')}</th>
+      </tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+  </div>
+
+  <div class="ic2">
+    <div class="st">${tx.inflTitle}</div>
+    <div style="font-size:11px;color:var(--gr);margin-bottom:12px">${tx.inflSub.replace('%r%',(inflr*100).toFixed(1)+'%')}</div>
+    <div class="icmp">
+      <div class="ib"><div class="ibv" style="color:var(--dk)">${fmt(cap)}</div><div class="ibl">${tx.todayVal}</div></div>
+      <div class="ib"><div class="ibv" style="color:var(--rd)">${fmt(id[Y])}</div><div class="ibl">${tx.futureVal.replace('%Y%',Y)}</div></div>
+    </div>
+    <div class="iyg">
+      ${milestones.map(y=>`<div class="iyc">
+        <div class="iy-yr">${tx.yrsLabel.replace('%y%',y)}</div>
+        <div class="iy-rv">${fmt(id[y])}</div>
+        <div class="iy-ls">${tx.loss.replace('%v%',fmt(cap-id[y]).replace('€',''))}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="bbc">
+    <div class="st">${tx.bbTitle} <span class="badge">${tx.bbSub}</span></div>
+    <table class="bbt">
+      <thead><tr><th>${tx.bbYear}</th><th>${tx.bbPct}</th><th>${tx.bbAmt}</th></tr></thead>
+      <tbody>${bb.map(r=>`<tr><td>${r.yr}</td><td class="bp">${r.pct}%</td><td>${r.amt}</td></tr>`).join('')}</tbody>
+    </table>
+    <p style="font-size:10px;color:var(--gr);margin-top:10px">${tx.bbNote}</p>
+  </div>
+
+  <div class="ig">
+    <div class="icard"><div class="ict">${tx.feat1t}</div><div class="icv">${tx.feat1v}</div><div class="icd">${tx.feat1d}</div></div>
+    <div class="icard"><div class="ict">${tx.feat2t}</div><div class="icv">${tx.feat2v}</div><div class="icd">${tx.feat2d}</div></div>
+    <div class="icard"><div class="ict">${tx.feat3t}</div><div class="icv">${tx.feat3v}</div><div class="icd">${tx.feat3d}</div></div>
+    <div class="icard"><div class="ict">${tx.feat4t}</div><div class="icv">${tx.feat4v}</div><div class="icd">${tx.feat4d}</div></div>
+  </div>
+
+  <div class="disc">${tx.disclaimer}</div>
+</div>`;
+
+  // Chart
+  const ctx=document.getElementById('mc').getContext('2d');
+  if(CH)CH.destroy();
+  const tx2=T[LANG];
+  CH=new Chart(ctx,{type:'line',data:{labels:lbs,datasets:[
+    {label:`${tx2.low} 2.5%`,data:sd[0],borderColor:'#3498db',borderWidth:2.5,pointRadius:0,tension:.4,fill:false},
+    {label:`${tx2.mid} 5.5%`,data:sd[1],borderColor:'#E8620A',borderWidth:2.5,pointRadius:0,tension:.4,fill:false},
+    {label:`${tx2.high} 10%`,data:sd[2],borderColor:'#2d7d46',borderWidth:2.5,pointRadius:0,tension:.4,fill:false},
+    {label:`${tx2.bank} ${(inflr*100).toFixed(1)}%`,data:id,borderColor:'#c0392b',borderWidth:2,borderDash:[5,4],pointRadius:0,tension:.4,fill:false}
+  ]},options:{responsive:true,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'top',labels:{font:{family:'DM Sans',size:12},padding:14,usePointStyle:true}},
+      tooltip:{callbacks:{label:c=>' '+c.dataset.label+': €'+Math.round(c.parsed.y).toLocaleString('el-GR')}}},
+    scales:{x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:11},maxTicksLimit:Y<=15?Y+1:11}},
+      y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{family:'DM Sans',size:11},callback:v=>'€'+Math.round(v/1000)+'k'}}}}});
+
+  document.getElementById('expPanel').classList.add('on');
+  window.scrollTo({top:document.getElementById('out').offsetTop-80,behavior:'smooth'});
+}
+
+// ══════════════════════════════════
+// PPTX EXPORT
+// ══════════════════════════════════
+async function exportPPTX(){
+  if(!LD)return;
+  const btn=document.getElementById('btnP');
+  btn.disabled=true;btn.textContent='⏳ ...';
+  const{name,age,cap,inflr,strat,pct,mpay,apay,sd,id,tp,Y}=LD;
+  const tx=T[LANG];
+  const W=13.3,H=7.5;
+  const ORG='E8620A',DARK='1a1a1a',LIGHT='f5f4f1',WHITE='ffffff',GREY='888888',GREEN='2d7d46',BLUE='3498db',RED='c0392b';
+  const mk=()=>({type:'outer',blur:8,offset:3,angle:135,color:'000000',opacity:.10});
+  const milestones=[];
+  if(Y>=10)milestones.push(10);if(Y>=15)milestones.push(15);if(Y>=20)milestones.push(20);if(Y>=25)milestones.push(25);
+  if(!milestones.includes(Y))milestones.push(Y);
+
+  const pres=new PptxGenJS();
+  pres.layout='LAYOUT_WIDE';pres.title=`NN Single Flex – ${name}`;
+
+  // S1 Cover
+  {const sl=pres.addSlide();sl.background={color:DARK};
+  sl.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:.55,h:H,fill:{color:ORG},line:{color:ORG}});
+  sl.addText('NN',{x:8,y:.3,w:5,h:5,fontSize:200,bold:true,color:'1e1e1e',fontFace:'Georgia',valign:'top',align:'right'});
+  sl.addText('NN Single Flex',{x:.9,y:1.2,w:10,h:1.3,fontSize:54,bold:true,color:ORG,fontFace:'Georgia',margin:0});
+  sl.addText(tx.pptxCover1,{x:.9,y:2.65,w:10,h:.6,fontSize:22,color:'cccccc',fontFace:'Calibri',margin:0});
+  sl.addShape(pres.shapes.RECTANGLE,{x:.9,y:3.45,w:2,h:.06,fill:{color:ORG},line:{color:ORG}});
+  sl.addShape(pres.shapes.RECTANGLE,{x:.9,y:3.7,w:7.4,h:2.5,fill:{color:'1e1e1e'},line:{color:'2a2a2a'},shadow:mk()});
+  sl.addText(tx.pptxClient,{x:1.15,y:3.9,w:7,h:.28,fontSize:8,color:ORG,bold:true,charSpacing:3,fontFace:'Calibri',margin:0});
+  [[name,tx.pptxClientF],[`${age}`,tx.pptxAgeF],[fmt(cap),tx.pptxCapF],[fmt(mpay)+'/'+tx.perMonth,tx.pptxPayF],[`${Y} ${tx.years}`,tx.pptxPeriodF],[SL[strat],tx.pptxStratF]].forEach(([v,l],i)=>{
+    const yp=4.3+i*.22;
+    sl.addText(l+':',{x:1.15,y:yp,w:2.8,h:.21,fontSize:10,color:GREY,fontFace:'Calibri',margin:0});
+    sl.addText(v,{x:4.05,y:yp,w:3.9,h:.21,fontSize:10,color:WHITE,bold:true,fontFace:'Calibri',margin:0});
+  });
+  sl.addText(new Date().toLocaleDateString(),{x:.9,y:H-.5,w:6,h:.3,fontSize:10,color:GREY,fontFace:'Calibri',margin:0});}
+
+  // S2 Monthly payout
+  {const sl=pres.addSlide();sl.background={color:LIGHT};
+  sl.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:W,h:.88,fill:{color:DARK},line:{color:DARK}});
+  sl.addText(tx.pptxS2title,{x:.5,y:0,w:W-1,h:.88,fontSize:18,bold:true,color:WHITE,fontFace:'Georgia',valign:'middle',margin:0});
+  sl.addShape(pres.shapes.RECTANGLE,{x:.5,y:1.05,w:5.9,h:3.9,fill:{color:ORG},line:{color:ORG},shadow:mk()});
+  sl.addText(tx.pptxS2monthly,{x:.8,y:1.5,w:5.3,h:.3,fontSize:9,color:WHITE,bold:true,charSpacing:3,fontFace:'Calibri',align:'center',margin:0});
+  sl.addText(fmt(mpay),{x:.8,y:2.0,w:5.3,h:1.4,fontSize:56,bold:true,color:WHITE,fontFace:'Georgia',align:'center',margin:0});
+  sl.addText(tx.pptxS2permonth,{x:.8,y:3.35,w:5.3,h:.35,fontSize:13,color:'ffd5b0',fontFace:'Calibri',align:'center',margin:0});
+  sl.addText(`${tx.pctLabel} ${(pct*100).toFixed(3)}%  ·  ${tx.ageLabel} ${age} ${tx.yearsLabel}`,{x:.8,y:3.72,w:5.3,h:.3,fontSize:10,color:'ffd5b0',fontFace:'Calibri',align:'center',margin:0});
+  sl.addShape(pres.shapes.RECTANGLE,{x:7,y:1.05,w:5.8,h:1.75,fill:{color:WHITE},line:{color:'e2e0db'},shadow:mk()});
+  sl.addText(tx.pptxS2annual,{x:7.2,y:1.25,w:5.3,h:.28,fontSize:9,color:GREY,bold:true,charSpacing:2,fontFace:'Calibri',margin:0});
+  sl.addText(fmt(apay),{x:7.2,y:1.6,w:5.3,h:.85,fontSize:36,bold:true,color:DARK,fontFace:'Georgia',margin:0});
+  sl.addShape(pres.shapes.RECTANGLE,{x:7,y:3.0,w:5.8,h:1.75,fill:{color:WHITE},line:{color:'e2e0db'},shadow:mk()});
+  sl.addText(`${tx.pptxS2total} (${Y} ${tx.years.toUpperCase()})`,{x:7.2,y:3.2,w:5.3,h:.28,fontSize:9,color:GREY,bold:true,charSpacing:2,fontFace:'Calibri',margin:0});
+  sl.addText(fmt(tp),{x:7.2,y:3.55,w:5.3,h:.85,fontSize:36,bold:true,color:ORG,fontFace:'Georgia',margin:0});
+  sl.addShape(pres.shapes.RECTANGLE,{x:.5,y:5.1,w:12.3,h:1.82,fill:{color:WHITE},line:{color:'e2e0db'},shadow:mk()});
+  sl.addText(tx.pptxS2ageTbl,{x:.75,y:5.28,w:11,h:.25,fontSize:9,color:GREY,bold:true,charSpacing:2,fontFace:'Calibri',margin:0});
+  [30,35,40,45,50,55,60,65,70,75].forEach((a,i)=>{
+    const xp=.75+i*1.18;
+    sl.addShape(pres.shapes.RECTANGLE,{x:xp,y:5.62,w:1.0,h:.95,fill:{color:LIGHT},line:{color:'e2e0db'}});
+    sl.addText(a+'',{x:xp,y:5.67,w:1,h:.3,fontSize:14,bold:true,color:DARK,fontFace:'Calibri',align:'center',margin:0});
+    sl.addText((PCT[a]*100).toFixed(3)+'%',{x:xp,y:5.97,w:1,h:.25,fontSize:9,color:ORG,fontFace:'Calibri',align:'center',margin:0});
+  });}
+
+  // S3 Scenarios
+  {const sl=pres.addSlide();sl.background={color:LIGHT};
+  sl.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:W,h:.88,fill:{color:DARK},line:{color:DARK}});
+  sl.addText(`${tx.pptxS3title} — ${Y} ${tx.years}`,{x:.5,y:0,w:W-1,h:.88,fontSize:18,bold:true,color:WHITE,fontFace:'Georgia',valign:'middle',margin:0});
+  const cols=[BLUE,ORG,GREEN];const sNames=[tx.low,tx.mid,tx.high];
+  SC_RATES.forEach((r,i)=>{
+    const fv=Math.max(0,sd[i][Y]),bw=3.9,xp=.5+i*(bw+.2);
+    sl.addShape(pres.shapes.RECTANGLE,{x:xp,y:1.0,w:bw,h:5.85,fill:{color:WHITE},line:{color:'e2e0db'},shadow:mk()});
+    sl.addShape(pres.shapes.RECTANGLE,{x:xp,y:1.0,w:bw,h:.13,fill:{color:cols[i]},line:{color:cols[i]}});
+    sl.addText(`${sNames[i]} ${tx.scenario}`,{x:xp+.15,y:1.22,w:bw-.3,h:.28,fontSize:10,bold:true,color:cols[i],charSpacing:1.5,fontFace:'Calibri',margin:0});
+    sl.addText((r*100).toFixed(1)+'%',{x:xp+.15,y:1.58,w:bw-.3,h:.95,fontSize:50,bold:true,color:cols[i],fontFace:'Georgia',margin:0});
+    sl.addText(tx.pptxS3avg,{x:xp+.15,y:2.5,w:bw-.3,h:.28,fontSize:10,color:GREY,fontFace:'Calibri',margin:0});
+    sl.addShape(pres.shapes.LINE,{x:xp+.15,y:2.88,w:bw-.3,h:0,line:{color:'e2e0db',width:1}});
+    [[fmt(fv),tx.pptxS3portVal,fv>0?GREEN:RED],[fmt(tp),tx.pptxS3payouts,GREEN],[fmt(fv+tp),tx.pptxS3total,ORG]].forEach(([v,l,c],j)=>{
+      const yy=3.07+j*1.0;
+      sl.addShape(pres.shapes.RECTANGLE,{x:xp+.15,y:yy,w:bw-.3,h:.88,fill:{color:LIGHT},line:{color:'e2e0db'}});
+      sl.addText(l,{x:xp+.25,y:yy+.07,w:bw-.5,h:.28,fontSize:9,color:GREY,fontFace:'Calibri',margin:0});
+      sl.addText(v,{x:xp+.25,y:yy+.4,w:bw-.5,h:.38,fontSize:17,bold:true,color:c,fontFace:'Calibri',margin:0});
+    });
+  });}
+
+  // S4 Period table
+  {const sl=pres.addSlide();sl.background={color:LIGHT};
+  sl.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:W,h:.88,fill:{color:DARK},line:{color:DARK}});
+  sl.addText(tx.pptxS4title,{x:.5,y:0,w:W-1,h:.88,fontSize:18,bold:true,color:WHITE,fontFace:'Georgia',valign:'middle',margin:0});
+  const colX=[.5,2.4,4.6,6.8,9.0,11.2],colW=[1.8,2.1,2.1,2.1,2.1,2.0];
+  const hdrs=[tx.pptxS4period,`${tx.low} 2.5%\n${tx.pptxS3portVal}`,`${tx.mid} 5.5%\n${tx.pptxS3portVal}`,`${tx.high} 10%\n${tx.pptxS3portVal}`,tx.pptxS3payouts,`${tx.bank}\n(${(inflr*100).toFixed(1)}%)`];
+  const hdrC=[DARK,BLUE,ORG,GREEN,DARK,RED];
+  hdrs.forEach((h,i)=>{
+    sl.addShape(pres.shapes.RECTANGLE,{x:colX[i],y:1.05,w:colW[i]-.05,h:.55,fill:{color:hdrC[i]},line:{color:hdrC[i]}});
+    sl.addText(h,{x:colX[i]+.05,y:1.08,w:colW[i]-.15,h:.5,fontSize:9,bold:true,color:WHITE,fontFace:'Calibri',align:'center',margin:0});
+  });
+  milestones.forEach((yr,ri)=>{
+    const yy=1.65+ri*.88,bg=ri%2===0?LIGHT:WHITE;const localTP=apay*yr;
+    colX.forEach((cx,ci)=>sl.addShape(pres.shapes.RECTANGLE,{x:cx,y:yy,w:colW[ci]-.05,h:.82,fill:{color:bg},line:{color:'e2e0db'}}));
+    sl.addText(`${yr} ${tx.years}`,{x:colX[0]+.08,y:yy+.2,w:colW[0]-.2,h:.4,fontSize:16,bold:true,color:DARK,fontFace:'Georgia',margin:0});
+    [[Math.max(0,sd[0][yr]),BLUE],[Math.max(0,sd[1][yr]),ORG],[Math.max(0,sd[2][yr]),GREEN],[localTP,DARK],[id[yr],RED]].forEach(([v,c],ci)=>{
+      sl.addText(fmt(v),{x:colX[ci+1]+.05,y:yy+.2,w:colW[ci+1]-.15,h:.4,fontSize:13,bold:true,color:c,fontFace:'Calibri',align:'center',margin:0});
+    });
+  });}
+
+  // S5 Inflation comparison
+  {const sl=pres.addSlide();sl.background={color:LIGHT};
+  sl.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:W,h:.88,fill:{color:DARK},line:{color:DARK}});
+  sl.addText(tx.pptxS5title,{x:.5,y:0,w:W-1,h:.88,fontSize:18,bold:true,color:WHITE,fontFace:'Georgia',valign:'middle',margin:0});
+  sl.addShape(pres.shapes.RECTANGLE,{x:.5,y:1.05,w:5.9,h:5.7,fill:{color:WHITE},line:{color:'e2e0db'},shadow:mk()});
+  sl.addShape(pres.shapes.RECTANGLE,{x:.5,y:1.05,w:5.9,h:.12,fill:{color:ORG},line:{color:ORG}});
+  sl.addText(`${tx.pptxS5tag} — ${Y} ${tx.years}`,{x:.7,y:1.25,w:5.5,h:.3,fontSize:10,bold:true,color:ORG,fontFace:'Calibri',margin:0});
+  [[fmt(mpay),tx.pptxS5payM,ORG],[fmt(apay),tx.pptxS5payA,ORG],[fmt(tp),`${tx.pptxS5payT} (${Y} ${tx.years})`,GREEN],[fmt(Math.max(0,sd[1][Y])),tx.pptxS5portV,GREEN],[fmt(tp+Math.max(0,sd[1][Y])),tx.pptxS5total,ORG]].forEach(([v,l,c],i)=>{
+    const yy=1.75+i*.95;
+    sl.addShape(pres.shapes.RECTANGLE,{x:.7,y:yy,w:5.5,h:.82,fill:{color:LIGHT},line:{color:'e2e0db'}});
+    sl.addText(l,{x:.88,y:yy+.07,w:5.1,h:.24,fontSize:9,color:GREY,fontFace:'Calibri',margin:0});
+    sl.addText(v,{x:.88,y:yy+.35,w:5.1,h:.38,fontSize:17,bold:true,color:c,fontFace:'Calibri',margin:0});
+  });
+  sl.addShape(pres.shapes.RECTANGLE,{x:7,y:1.05,w:5.8,h:5.7,fill:{color:WHITE},line:{color:'ffd5c8'},shadow:mk()});
+  sl.addShape(pres.shapes.RECTANGLE,{x:7,y:1.05,w:5.8,h:.12,fill:{color:RED},line:{color:RED}});
+  sl.addText(`${tx.pptxS5bankTag} ${(inflr*100).toFixed(1)}%/${LANG==='el'?'έτος':'year'}`,{x:7.2,y:1.25,w:5.4,h:.3,fontSize:10,bold:true,color:RED,fontFace:'Calibri',margin:0});
+  const showMils=milestones.slice(0,4);
+  showMils.forEach((y,i)=>{
+    const yy=1.75+i*1.2,rv=id[y];
+    sl.addShape(pres.shapes.RECTANGLE,{x:7.2,y:yy,w:5.4,h:1.08,fill:{color:'fff5f3'},line:{color:'ffd5c8'}});
+    sl.addText(`${tx.pptxS5valIn} ${y} ${tx.years}`,{x:7.38,y:yy+.08,w:5,h:.24,fontSize:9,color:GREY,fontFace:'Calibri',margin:0});
+    sl.addText(fmt(rv),{x:7.38,y:yy+.36,w:2.8,h:.38,fontSize:17,bold:true,color:RED,fontFace:'Calibri',margin:0});
+    sl.addText('-'+fmt(cap-rv),{x:10.1,y:yy+.36,w:2.35,h:.38,fontSize:14,bold:true,color:RED,fontFace:'Calibri',align:'right',margin:0});
+  });}
+
+  // S6 Buyback + features
+  {const sl=pres.addSlide();sl.background={color:LIGHT};
+  sl.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:W,h:.88,fill:{color:DARK},line:{color:DARK}});
+  sl.addText(tx.pptxS6title,{x:.5,y:0,w:W-1,h:.88,fontSize:18,bold:true,color:WHITE,fontFace:'Georgia',valign:'middle',margin:0});
+  sl.addShape(pres.shapes.RECTANGLE,{x:.5,y:1.05,w:5.9,h:5.7,fill:{color:WHITE},line:{color:'e2e0db'},shadow:mk()});
+  sl.addText(tx.pptxS6bbTitle,{x:.72,y:1.25,w:5.4,h:.28,fontSize:10,bold:true,color:ORG,charSpacing:2,fontFace:'Calibri',margin:0});
+  [[.72,2.4,tx.pptxS6bbYr],[3.25,1.2,tx.pptxS6bbPct],[4.6,1.5,tx.pptxS6bbAmt]].forEach(([x,w,tt])=>{
+    sl.addShape(pres.shapes.RECTANGLE,{x,y:1.68,w,h:.3,fill:{color:DARK},line:{color:DARK}});
+    sl.addText(tt,{x,y:1.7,w,h:.26,fontSize:9,bold:true,color:WHITE,fontFace:'Calibri',align:'center',margin:0});
+  });
+  for(let y=1;y<=6;y++){
+    const yy=2.07+(y-1)*.62,bg=y%2===1?LIGHT:WHITE;
+    sl.addShape(pres.shapes.RECTANGLE,{x:.72,y:yy,w:5.4,h:.56,fill:{color:bg},line:{color:'e2e0db'}});
+    sl.addText(`${y}${tx.pptxS6yr}`,{x:.88,y:yy+.12,w:2.2,h:.3,fontSize:12,color:DARK,fontFace:'Calibri',margin:0});
+    sl.addText(BB[y]+'%',{x:3.25,y:yy+.12,w:1.2,h:.3,fontSize:14,bold:true,color:ORG,fontFace:'Calibri',align:'center',margin:0});
+    sl.addText(fmt(cap*BB[y]/100),{x:4.6,y:yy+.12,w:1.4,h:.3,fontSize:11,color:DARK,fontFace:'Calibri',align:'right',margin:0});
+  }
+  const yl=2.07+6*.62;
+  sl.addShape(pres.shapes.RECTANGLE,{x:.72,y:yl,w:5.4,h:.56,fill:{color:ORG},line:{color:ORG}});
+  sl.addText(tx.pptxS6yr7,{x:.88,y:yl+.12,w:2.2,h:.3,fontSize:12,bold:true,color:WHITE,fontFace:'Calibri',margin:0});
+  sl.addText('100%',{x:3.25,y:yl+.12,w:1.2,h:.3,fontSize:14,bold:true,color:WHITE,fontFace:'Calibri',align:'center',margin:0});
+  sl.addText(fmt(cap),{x:4.6,y:yl+.12,w:1.4,h:.3,fontSize:11,bold:true,color:WHITE,fontFace:'Calibri',align:'right',margin:0});
+  [[tx.pptxS6f1t,tx.pptxS6f1v,tx.pptxS6f1d],[tx.pptxS6f2t,tx.pptxS6f2v,tx.pptxS6f2d],
+   [tx.pptxS6f3t,tx.pptxS6f3v,tx.pptxS6f3d],[tx.pptxS6f4t,tx.pptxS6f4v,tx.pptxS6f4d]].forEach(([tt,v,d],i)=>{
+    const yy=1.05+i*1.45;
+    sl.addShape(pres.shapes.RECTANGLE,{x:7,y:yy,w:5.8,h:1.32,fill:{color:WHITE},line:{color:'e2e0db'},shadow:mk()});
+    sl.addText(tt,{x:7.15,y:yy+.1,w:5.5,h:.28,fontSize:9,color:GREY,bold:true,charSpacing:1.5,fontFace:'Calibri',margin:0});
+    sl.addText(v,{x:7.15,y:yy+.42,w:5.5,h:.38,fontSize:15,bold:true,color:DARK,fontFace:'Calibri',margin:0});
+    sl.addText(d,{x:7.15,y:yy+.85,w:5.5,h:.28,fontSize:10,color:GREY,fontFace:'Calibri',margin:0});
+  });}
+
+  // S7 Close
+  {const sl=pres.addSlide();sl.background={color:DARK};
+  sl.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:.55,h:H,fill:{color:ORG},line:{color:ORG}});
+  sl.addText('NN Single Flex',{x:.9,y:1.5,w:11,h:1.3,fontSize:46,bold:true,color:ORG,fontFace:'Georgia',margin:0});
+  sl.addText(name,{x:.9,y:3.0,w:11,h:.7,fontSize:28,color:WHITE,fontFace:'Calibri',margin:0});
+  sl.addShape(pres.shapes.RECTANGLE,{x:.9,y:3.95,w:2,h:.06,fill:{color:ORG},line:{color:ORG}});
+  sl.addText([{text:tx.pptxNote,options:{bold:true,color:ORG}},{text:tx.pptxDisclaimer,options:{color:'aaaaaa'}}],{x:.9,y:4.15,w:12,h:1.5,fontSize:11,fontFace:'Calibri',margin:0});
+  sl.addText(new Date().toLocaleDateString()+' · NN Single Flex Generator',{x:.9,y:H-.5,w:12,h:.3,fontSize:10,color:GREY,fontFace:'Calibri',margin:0});}
+
+  const safe=name.replace(/[^a-zA-Z0-9Α-Ωα-ω]/g,'_');
+  await pres.writeFile({fileName:`NN_SingleFlex_${safe}_${Y}yr.pptx`});
+  btn.disabled=false;btn.innerHTML='📊 PowerPoint (.pptx)';
+}
+
+// ══════════════════════════════════
+// PDF EXPORT
+// ══════════════════════════════════
+async function exportPDF(){
+  if(!LD)return;
+  const btn=document.getElementById('btnF');
+  btn.disabled=true;btn.textContent='⏳ ...';
+  const{jsPDF}=window.jspdf;
+  const el=document.getElementById('printArea');
+  try{
+    const canvas=await html2canvas(el,{scale:1.6,useCORS:true,backgroundColor:'#f5f4f1',width:el.scrollWidth,height:el.scrollHeight,scrollX:0,scrollY:0});
+    const imgW=canvas.width,imgH=canvas.height;
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const pdfW=pdf.internal.pageSize.getWidth(),pdfH=pdf.internal.pageSize.getHeight();
+    const ratio=pdfW/imgW,pageHpx=pdfH/ratio;
+    let yOff=0,page=0;
+    while(yOff<imgH){
+      if(page>0)pdf.addPage();
+      const pc=document.createElement('canvas');pc.width=imgW;pc.height=Math.min(pageHpx,imgH-yOff);
+      pc.getContext('2d').drawImage(canvas,0,-yOff);
+      pdf.addImage(pc.toDataURL('image/jpeg',.9),'JPEG',0,0,pdfW,pc.height*ratio,undefined,'FAST');
+      yOff+=pageHpx;page++;
+    }
+    const safe=LD.name.replace(/[^a-zA-Z0-9Α-Ωα-ω]/g,'_');
+    pdf.save(`NN_SingleFlex_${safe}_${LD.Y}yr.pdf`);
+  }catch(e){alert('PDF error: '+e.message);}
+  btn.disabled=false;btn.innerHTML='📄 PDF';
+}
+</script>
+</body>
+</html>

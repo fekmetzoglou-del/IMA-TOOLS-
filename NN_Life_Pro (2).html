@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NN Orange Life + Accelerator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--or:#E8620A;--bg:#1A1A1A;--wh:#FFFFFF;--lg:#F5F4F1;--mg:#E4E3E0;--gr:#888888;--dg:#444444}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#CCCBC8;color:#1a1a1a;display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sb{width:310px;min-width:280px;background:#fff;border-right:1px solid #ddd;overflow-y:auto;flex-shrink:0}
+.sb-in{padding:.9rem .85rem}
+.logo{font-size:10px;font-weight:700;color:var(--or);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.9rem}
+.logo span{color:#ccc;font-weight:400}
+.sec{margin-bottom:.75rem}
+.sh{font-size:9px;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.09em;margin-bottom:.45rem;padding-bottom:2px;border-bottom:1px solid #f0f0ee}
+.f{margin-bottom:5px}
+.f label{display:block;font-size:11px;color:#555;font-weight:500;margin-bottom:1px}
+.f input,.f select{width:100%;padding:5px 8px;border:1px solid #ddd;border-radius:5px;font-size:12px;color:#1a1a1a;background:#fff;outline:none;transition:border-color .15s}
+.f input:focus,.f select:focus{border-color:var(--or)}
+.rg{display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+.rg label{display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer}
+.rg input{accent-color:var(--or);width:auto}
+.ck{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.ck input{accent-color:var(--or)}
+.ck label{font-size:11px;cursor:pointer}
+.info{font-size:10px;color:#ccc;background:#FAFAF8;border-radius:4px;padding:4px 7px;margin-top:3px;line-height:1.5}
+.live-badge{display:inline-block;font-size:9px;font-weight:700;color:#2a8a5a;background:#EAF7EF;border-radius:10px;padding:2px 7px;margin-bottom:.6rem}
+.er{display:none;grid-template-columns:1fr 1fr;gap:6px;margin-top:.6rem}
+.be{padding:8px;border:1.5px solid;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;background:#fff}
+.bp{border-color:var(--or);color:var(--or)}.bp:hover{background:#FFF0E8}
+.bdf{border-color:#555;color:#555}.bdf:hover{background:#f5f5f5}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;padding:1.5rem 1.8rem;background:#CCCBC8}
+.sw{max-width:880px;margin:0 auto}
+.empty{text-align:center;padding:4rem 2rem;color:#aaa}
+.empty h2{font-size:16px;font-weight:400;margin-bottom:4px}
+.empty p{font-size:12px}
+
+/* ── SLIDE: 16:9 ── */
+.slide{width:100%;aspect-ratio:16/9;background:#fff;border-radius:5px;margin-bottom:1.2rem;overflow:hidden;position:relative;box-shadow:0 4px 22px rgba(0,0,0,.22);display:flex;flex-direction:column}
+
+/* COVER */
+.cov{background:var(--bg);flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:5.5% 8% 6.5%}
+.cov .abar{position:absolute;top:0;left:0;width:.9%;height:100%;background:var(--or)}
+.cov .pre{font-size:1.6%;color:var(--or);font-weight:700;letter-spacing:.15em;text-transform:uppercase;margin-bottom:1.5%}
+.cov h1{font-size:5.8%;font-weight:300;color:#fff;line-height:1.15;margin-bottom:1.3%}
+.cov .csub{font-size:1.8%;color:#666;margin-bottom:2.2%}
+.cov .tags{display:flex;gap:1.3%;flex-wrap:wrap}
+.cov .tg{font-size:1.4%;background:#252525;color:#bbb;padding:.45% 1.8%;border-radius:20px}
+
+/* HEAD */
+.hd{padding:2% 3.5%;flex-shrink:0}
+.hd.dk{background:var(--bg)}.hd.or{background:var(--or)}
+.hd h2{font-size:1.9%;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.04em}
+
+/* BODY */
+.bd2{padding:2.2% 3.5%;flex:1;overflow:hidden;display:flex;flex-direction:column}
+
+/* FORMULA */
+.fb{background:var(--lg);border-radius:3px;padding:1.8% 2.5%;text-align:center;margin-bottom:1.8%}
+.fb .feq{font-size:1.9%;color:var(--or);font-weight:700;margin-bottom:.9%}
+.fb .fres{font-size:3%;font-weight:700;color:var(--bg)}
+.fb .fres span{color:var(--or)}
+
+/* 3 CAPS */
+.c3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.6%}
+.cc{border-radius:3px;padding:2.2% 2.8%;border:1.5px solid var(--mg)}
+.cc.id{border-color:var(--or);background:#FFF8F4}
+.cc .cl{font-size:1.4%;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.7%}
+.cc .cv{font-size:3%;font-weight:700;color:var(--bg)}
+.cc .cs{font-size:1.3%;color:var(--gr);margin-top:.4%}
+
+/* PROTECT */
+.pbg{display:grid;gap:1.5%;margin-bottom:1.5%}
+.pbg.one{grid-template-columns:1fr}.pbg.two{grid-template-columns:1fr 1fr}
+.pb{border-left:4px solid var(--or);background:var(--lg);border-radius:0 3px 3px 0;padding:2.2% 2.8%}
+.pb h3{font-size:1.9%;font-weight:700;margin-bottom:1%;color:var(--bg)}
+.pb p{font-size:1.5%;color:var(--dg);line-height:1.6}
+.bnr{background:#1a1a1a;border-radius:3px;padding:1.1% 2%;text-align:center}
+.bnr span{font-size:1.6%;font-weight:700;color:var(--or)}
+
+/* CAP SLIDE - no scenarios */
+.cap-hdr{display:flex;align-items:baseline;gap:1.8%;margin-bottom:2%}
+.badge{font-size:1.3%;font-weight:700;padding:.35% 1.8%;border-radius:20px;text-transform:uppercase;letter-spacing:.06em}
+.badge.id{background:var(--or);color:#fff}
+.badge.gy{background:var(--mg);color:var(--dg)}
+.capbig{font-size:3.2%;font-weight:700;color:var(--bg)}
+
+/* cost row 2 cols */
+.mr{display:grid;grid-template-columns:1fr 1fr;gap:2%;margin-bottom:1.8%}
+.ms{background:var(--lg);border-radius:3px;padding:1.6% 2.2%;border-left:3px solid var(--or)}
+.ms .ml{font-size:1.2%;color:var(--gr);font-weight:600;text-transform:uppercase;margin-bottom:.5%}
+.ms .mv{font-size:2.5%;font-weight:700}
+.ms .mv.ac{color:var(--or)}
+.ms .msub{font-size:1.1%;color:var(--gr);margin-top:.3%}
+
+/* All 3 caps cost in 1 slide */
+.caps-all{display:flex;flex-direction:column;gap:1.2%;flex:1}
+.cap-row{display:grid;grid-template-columns:130px 1fr 1fr;gap:1.2%;align-items:center}
+.cap-row .cap-name{font-size:1.4%;font-weight:700;color:var(--bg)}
+.cap-row .cap-name small{display:block;font-size:1.1%;color:var(--or);font-weight:600}
+.cap-row .cv2{background:var(--lg);border-left:3px solid var(--or);border-radius:3px;padding:1.2% 1.8%}
+.cap-row .cv2 .ml{font-size:1.1%;color:var(--gr);font-weight:600;text-transform:uppercase;margin-bottom:.3%}
+.cap-row .cv2 .mv{font-size:2%;font-weight:700}
+.cap-row .cv2 .mv.ac{color:var(--or)}
+
+/* Scenario combined slide */
+.scen-grid{display:grid;gap:1.2%}
+.scen-grid.s1{grid-template-columns:1fr}
+.scen-grid.s2{grid-template-columns:1fr 1fr}
+.scen{border-radius:3px;padding:1.5% 2.2%}
+.scen.fr{background:#FFF8F4;border:1.5px solid var(--or)}
+.scen.an{background:var(--lg);border:1.5px solid var(--mg)}
+.stag{font-size:1.2%;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.7%}
+.scen.fr .stag{color:var(--or)}.scen.an .stag{color:var(--dg)}
+.si{display:grid;grid-template-columns:auto 1fr;gap:2%;align-items:center}
+.scen-l .sbig{font-size:2.2%;font-weight:700}
+.scen.fr .sbig{color:var(--or)}.scen.an .sbig{color:var(--bg)}
+.scen-l .ssub{font-size:1.1%;color:var(--gr);margin-top:.3%}
+.scen-r{font-size:1.3%;color:var(--dg);line-height:1.6}
+
+/* HISTORY */
+.hst{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5%;margin-bottom:1.5%}
+.hs{background:var(--lg);border-radius:3px;padding:1.2% 2%;border-left:3px solid var(--or)}
+.hs .hl{font-size:1.2%;color:var(--gr);font-weight:600;text-transform:uppercase;margin-bottom:.5%}
+.hs .hv{font-size:2%;font-weight:700;color:var(--bg)}.hs .hv.ac{color:var(--or)}
+.hbars{display:flex;flex-direction:column;gap:.3%;flex:1}
+.hbar{display:flex;align-items:center;gap:1%}
+.hbar .hy{font-size:1%;color:var(--gr);width:2.5%;text-align:right;flex-shrink:0}
+.hbar .ho{flex:1;background:#ECEAE7;border-radius:1px;overflow:hidden;height:.85vh}
+.hbar .hi{height:100%;border-radius:1px;background:var(--or)}
+.hbar .ha{font-size:.95%;color:#555;width:15%;text-align:right;flex-shrink:0}
+.disc{font-size:1%;color:#aaa;margin-top:1%;padding-top:1%;border-top:1px solid #f0f0ee;line-height:1.5}
+
+/* FUNDS */
+.fg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.1%}
+.fund{border:1px solid var(--mg);border-radius:3px;padding:1.3% 1.8%;border-left:3px solid var(--or)}
+.fund .fn{font-size:1.3%;font-weight:700;color:var(--bg);margin-bottom:.3%}
+.fund .ft{font-size:1%;color:var(--or);font-weight:600;text-transform:uppercase;margin-bottom:.7%}
+.fund .fp{display:flex;gap:.7%;flex-wrap:wrap}
+.fund .fp span{font-size:1%;background:#f5f5f3;padding:.3% .7%;border-radius:2px;color:var(--dg)}
+.fund .fp strong{color:var(--bg)}
+
+/* SCHEDULE */
+.stbl{width:100%;border-collapse:collapse;font-size:1.3%}
+.stbl th{background:var(--bg);color:#fff;padding:.9% 1.3%;text-align:left;font-size:1.1%}
+.stbl td{padding:.7% 1.3%;border-bottom:1px solid #f0f0ee}
+.stbl tfoot td{font-weight:700;background:var(--lg)}
+
+/* CLOSING */
+.cl{background:var(--bg);flex:1;display:flex;flex-direction:column;justify-content:center;padding:7% 8%}
+.cl::before{content:'';position:absolute;top:0;left:0;width:.9%;height:100%;background:var(--or)}
+.cl h2{font-size:3.8%;font-weight:300;color:#fff;line-height:1.3;margin-bottom:1.3%}
+.cl h2 span{color:var(--or)}
+.cl .d2{font-size:1.2%;color:#555;line-height:1.6}
+</style>
+</head>
+<body>
+
+<div class="sb"><div class="sb-in">
+  <div class="logo">NN Orange Life <span>+ Accelerator</span></div>
+  <div class="live-badge">● LIVE — αυτόματη ενημέρωση</div>
+
+  <div class="sec">
+    <div class="sh">Στοιχεία Πελάτη</div>
+    <div class="f"><label>Ονοματεπώνυμο</label><input id="nm" placeholder="π.χ. Γεώργιος Παπαδόπουλος" oninput="go()"></div>
+    <div class="f"><label>Ηλικία</label><input type="number" id="age" min="18" max="65" placeholder="40" oninput="go()"></div>
+    <div class="f"><label>Επάγγελμα</label>
+      <select id="occ" onchange="go()"><option value="">Επιλογή...</option>
+        <option>Μισθωτός</option><option>Ελεύθερος επαγγελματίας</option>
+        <option>Επιχειρηματίας</option><option>Δημόσιος υπάλληλος</option></select></div>
+    <div class="f"><label>Οικογενειακή κατάσταση</label>
+      <select id="sta" onchange="go()"><option value="">Επιλογή...</option>
+        <option>Άγαμος</option><option>Έγγαμος χωρίς παιδιά</option>
+        <option>Έγγαμος με 1 παιδί</option><option>Έγγαμος με 2+ παιδιά</option>
+        <option>Διαζευγμένος</option></select></div>
+    <div class="f"><label>Μ.Ο. Εισοδήματος 3 ετών (€/έτος)</label>
+      <input type="number" id="inc" placeholder="30000" min="0" oninput="go()"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sh">Πρόγραμμα Life</div>
+    <div class="f"><label>Τύπος</label>
+      <div class="rg">
+        <label><input type="radio" name="prog" value="auto" checked onchange="go()"> Αυτόματο</label>
+        <label><input type="radio" name="prog" value="TR1" onchange="go()"> TR1</label>
+        <label><input type="radio" name="prog" value="TR2" onchange="go()"> TR2&3</label>
+      </div></div>
+    <div class="f"><label>Λήξη</label>
+      <div class="rg">
+        <label><input type="radio" name="exp" value="67" checked onchange="togE();go()"> Σύνταξη (67)</label>
+        <label><input type="radio" name="exp" value="manual" onchange="togE();go()"> Χειροκίνητα</label>
+      </div></div>
+    <div class="f" id="endD" style="display:none"><label>Ηλικία λήξης</label><input type="number" id="ea" min="28" max="75" oninput="go()"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sh">Accelerator</div>
+    <div class="f"><label>Αναμενόμενη ετήσια απόδοση (%)</label>
+      <input type="number" id="ret" value="10" min="1" max="30" step="0.5" oninput="go()"></div>
+    <div class="info">Ιστορική 25ετής: ~13–14%/έτος · Συντηρητική: 8–10%</div>
+  </div>
+
+  <div class="sec">
+    <div class="sh">Σενάρια Accelerator</div>
+    <div class="ck"><input type="checkbox" id="scFr" onchange="go()"><label for="scFr">Δωρεάν Εξασφάλιση</label></div>
+    <div class="ck"><input type="checkbox" id="scAn" onchange="go()"><label for="scAn">Ό,τι και αν Συμβεί</label></div>
+  </div>
+
+  <div class="sec">
+    <div class="sh">Επιπλέον</div>
+    <div class="ck"><input type="checkbox" id="shSc" onchange="go()"><label for="shSc">Πίνακας ετήσιων καταβολών</label></div>
+    <div class="ck"><input type="checkbox" id="shHi" checked onchange="go()"><label for="shHi">Ιστορική απόδοση 25 ετών</label></div>
+    <div class="ck"><input type="checkbox" id="shFu" checked onchange="go()"><label for="shFu">Τα 9 Funds</label></div>
+  </div>
+
+  <div class="er" id="er">
+    <button class="be bp" onclick="xPPTX()">⬇ PPTX</button>
+    <button class="be bdf" onclick="xPDF()">⬇ PDF</button>
+  </div>
+</div></div>
+
+<div class="main"><div class="sw" id="sw">
+  <div class="empty">
+    <h2>Συμπληρώστε τα στοιχεία</h2>
+    <p>Η παρουσίαση εμφανίζεται αυτόματα · PPTX / PDF</p>
+  </div>
+</div></div>
+
+<script>
+const R1={18:0.0009947,19:0.0011149,20:0.0011975,21:0.0012595,22:0.0013009,23:0.0013241,24:0.0013306,25:0.0013228,26:0.0013073,27:0.0012867,28:0.001266,29:0.0012479,30:0.0012311,31:0.0012182,32:0.0012105,33:0.0012143,34:0.001235,35:0.0012763,36:0.0013422,37:0.0014315,38:0.0015384,39:0.0016626,40:0.0017969,41:0.0019416,42:0.0021031,43:0.0022762,44:0.0024622,45:0.0026702,46:0.0029105,47:0.0031947,48:0.0035319,49:0.0039259,50:0.0043677,51:0.0048418,52:0.0053314,53:0.0058314,54:0.0063571,55:0.0069398,56:0.0076115,57:0.00837,58:0.0092392,59:0.010212,60:0.0112932,61:0.0124843,62:0.0137749,63:0.0151584,64:0.0166415,65:0.018233};
+const R2={18:0.001433,19:0.0015532,20:0.0016358,21:0.0016978,22:0.0017392,23:0.0017624,24:0.0017689,25:0.0017611,26:0.0017456,27:0.001725,28:0.0017043,29:0.0016862,30:0.0016694,31:0.0016565,32:0.0016488,33:0.0016526,34:0.0017086,35:0.0017924,36:0.0019077,37:0.0020607,38:0.0022312,39:0.0024402,40:0.0026593,41:0.0028889,42:0.0031493,43:0.0034214,44:0.0037135,45:0.0040346,46:0.0044192,47:0.004887,48:0.0054489,49:0.0061107,50:0.00686,51:0.0076983,52:0.0085956,53:0.0095535,54:0.0105893,55:0.0117368,56:0.0130352,57:0.0145028,58:0.0161639,59:0.0180343,60:0.0201135};
+const HV=[9725,18545,26731,41930,55690,76696,94113,99102,47324,72679,101471,97397,144031,203355,253317,260202,372627,496714,646778,963605,1079362,1448722,876085,994541,1238649,1382580];
+const HR=[null,-10.07,-9.23,20.1,9.44,20.48,10.32,-5.04,-63.78,30,23.29,-16.17,35.52,33.16,19.04,-1.86,39.23,30.9,28.77,48.55,11.85,34.54,-39.93,13,24.4,11.62];
+const FU=[
+  {n:'Vanguard Global Stock Index Fund',t:'Equity Global',p1:'+18.5%',p3:'+11.2%',p5:'+12.8%'},
+  {n:'Vanguard ESG Developed World All Cap',t:'Equity ESG',p1:'+17.6%',p3:'+10.4%',p5:'+11.9%'},
+  {n:'iShares Developed World Index Fund',t:'Equity MSCI World',p1:'+18.4%',p3:'+11.1%',p5:'+12.7%'},
+  {n:'Vanguard US 500 Stock Index Fund',t:'Equity S&P500',p1:'+22.1%',p3:'+12.5%',p5:'+14.2%'},
+  {n:'Vanguard FTSE All-World UCITS ETF',t:'Equity All-World',p1:'+16.4%',p3:'+9.2%',p5:'+10.5%'},
+  {n:'Vanguard Japan Stock Index Fund',t:'Equity Japan',p1:'+12.8%',p3:'+8.4%',p5:'+7.2%'},
+  {n:'Vanguard European Stock Index Fund',t:'Equity Europe',p1:'+10.2%',p3:'+7.8%',p5:'+8.1%'},
+  {n:'Vanguard Eurozone Stock Index Fund',t:'Equity Eurozone',p1:'+9.5%',p3:'+6.4%',p5:'+7.3%'},
+  {n:'BlackRock ICS Euro Liquidity Heritage',t:'Money Market AAA',p1:'+3.2%',p3:'+2.1%',p5:'+1.2%'},
+];
+
+function togE(){document.getElementById('endD').style.display=document.querySelector('[name=exp]:checked').value==='manual'?'block':'none';}
+function N(n){return Math.round(n).toLocaleString('el-GR');}
+function D2(n){return Number(n).toLocaleString('el-GR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function pr(age,cap,tr2,first){const r=tr2?(R2[age]||null):(R1[age]||null);if(!r)return null;return cap*r+41+(first?30:0);}
+function fvF(ar,yrs){const r=ar/100/12,n=yrs*12;return r===0?n:(Math.pow(1+r,n)-1)/r;}
+function pmt(tgt,ar,yrs){return tgt/fvF(ar,yrs);}
+
+let D=null,timer=null;
+function go(){clearTimeout(timer);timer=setTimeout(render,80);}
+
+function getInputs(){
+  const age=parseInt(document.getElementById('age').value)||0;
+  const inc=parseFloat(document.getElementById('inc').value)||0;
+  const nm=document.getElementById('nm').value.trim();
+  const occ=document.getElementById('occ').value;
+  const sta=document.getElementById('sta').value;
+  const pv=document.querySelector('[name=prog]:checked').value;
+  const ev=document.querySelector('[name=exp]:checked').value;
+  const ret=parseFloat(document.getElementById('ret').value)||10;
+  const scFr=document.getElementById('scFr').checked;
+  const scAn=document.getElementById('scAn').checked;
+  const shSc=document.getElementById('shSc').checked;
+  const shHi=document.getElementById('shHi').checked;
+  const shFu=document.getElementById('shFu').checked;
+  return{age,inc,nm,occ,sta,pv,ev,ret,scFr,scAn,shSc,shHi,shFu};
+}
+
+function render(){
+  const i=getInputs();
+  const sw=document.getElementById('sw');
+  if(!i.age||i.age<18||i.age>65||i.inc<=0){
+    sw.innerHTML=`<div class="empty"><h2>Συμπληρώστε ηλικία (18–65) και εισόδημα</h2><p>Η παρουσίαση εμφανίζεται αυτόματα</p></div>`;
+    document.getElementById('er').style.display='none';D=null;return;
+  }
+  let tr2=i.pv==='TR2'?true:(i.pv==='TR1'?false:i.age<=60);
+  if(tr2&&i.age>60)tr2=false;
+
+  let ea=67;
+  if(i.ev==='manual'){
+    ea=parseInt(document.getElementById('ea').value)||67;
+    if(ea<i.age+10)ea=i.age+10;
+  }
+  const mx=tr2?70:75;if(ea>mx)ea=mx;
+  const dur=ea-i.age,yrs=Math.max(0,67-i.age),ideal=yrs*i.inc*0.8;
+
+  let sched=[],totI=0;
+  for(let y=0;y<dur;y++){const a=i.age+y,p=pr(a,ideal,tr2,y===0);if(!p)break;totI+=p;sched.push({yr:y+1,age:a,p});}
+
+  D={...i,tr2,ea,dur,yrs,ideal,totI,sched};
+
+  const pL=tr2?'NN Orange Life Plus (TR2&3)':'NN Orange Life (TR1)';
+  const firstName=i.nm?i.nm.split(' ')[0]:'πελάτη';
+
+  function S(inner){return `<div class="slide">${inner}</div>`;}
+  function H(t,c='dk'){return `<div class="hd ${c}"><h2>${t}</h2></div>`;}
+  function B(inner){return `<div class="bd2">${inner}</div>`;}
+
+  function cd(cap){
+    const ratio=cap/ideal;
+    const totLife=totI*ratio;
+    const ann=pr(i.age,cap,tr2,false)||0;
+    const first=pr(i.age,cap,tr2,true)||0;
+    const mon=ann/12,day=ann/365;
+    const mFr=i.scFr?pmt(totLife,i.ret,dur):0;
+    const mAn=i.scAn?pmt(cap,i.ret,dur):0;
+    return{cap,totLife,ann,first,mon,day,mFr,mAn,
+      fvFr:mFr*fvF(i.ret,dur),fvAn:mAn*fvF(i.ret,dur)};
+  }
+
+  let h='';
+
+  // ── SLIDE 1: COVER
+  h+=S(`<div class="cov"><div class="abar"></div>
+    <div class="pre">Ασφαλιστική Πρόταση</div>
+    <h1>${i.nm||'—'}</h1>
+    <div class="csub">${[i.occ,i.sta,'Ηλικία: '+i.age].filter(Boolean).join(' · ')}</div>
+    <div class="tags">
+      <span class="tg">${pL}</span>
+      <span class="tg">Λήξη: ${ea}</span>
+      <span class="tg">${new Date().toLocaleDateString('el-GR')}</span>
+    </div>
+  </div>`);
+
+  // ── SLIDE 2: FUTURE VALUE (με όνομα πελάτη)
+  h+=S(H('Η Μελλοντική σου Οικονομική Αξία')+B(`
+    <p style="font-size:1.75%;color:#555;line-height:1.65;margin-bottom:1.6%">
+      Αγαπητέ <strong>${firstName}</strong>, η πιο σημαντική σου περιουσία είναι τα <strong>μελλοντικά σου εισοδήματα</strong> — αποτέλεσμα της ικανότητάς σου να εργάζεσαι και να παράγεις. <em>Αυτό θέλουμε να προστατέψουμε.</em>
+    </p>
+    <div class="fb">
+      <div class="feq">Μ.Ο. Εισοδήματος &times; Έτη έως σύνταξη (67) &times; 80%</div>
+      <div class="fres">€${N(i.inc)} &times; ${yrs} &times; 80% = <span>€${N(ideal)}</span></div>
+    </div>
+    <div class="c3">
+      <div class="cc id"><div class="cl">Ιδανικό (100%)</div><div class="cv">€${N(ideal)}</div><div class="cs">Πλήρης προστασία</div></div>
+      <div class="cc"><div class="cl">Αναγκαίο (50%)</div><div class="cv">€${N(ideal/2)}</div><div class="cs">Βασική κάλυψη</div></div>
+      <div class="cc"><div class="cl">Ελάχιστο (25%)</div><div class="cv">€${N(ideal/4)}</div><div class="cs">Ελάχιστη προστασία</div></div>
+    </div>
+  `));
+
+  // ── SLIDE 3: PROTECT
+  const pb=tr2?[
+    {t:'Απώλεια Ζωής',p:'Αν φύγεις νωρίς, η οικογένειά σου λαμβάνει αμέσως το κεφάλαιο και συνεχίζει τη ζωή της χωρίς οικονομικές ανησυχίες.'},
+    {t:'Μόνιμη Ολική Ανικανότητα (ΜΟΑ)',p:'Αν χάσεις την ικανότητα εργασίας από ατύχημα ή ασθένεια, λαμβάνεις το κεφάλαιο ΕΣΥ — για τον εαυτό σου και την οικογένειά σου.'},
+  ]:[{t:'Απώλεια Ζωής',p:'Αν φύγεις νωρίς, η οικογένειά σου λαμβάνει αμέσως το ασφαλισμένο κεφάλαιο και συνεχίζει τη ζωή της χωρίς οικονομικές ανησυχίες.'}];
+  h+=S(H('Τι Θέλουμε να Προστατέψουμε','or')+B(`
+    <p style="font-size:1.5%;color:#666;margin-bottom:1.5%">${pL} · Διάρκεια: ${dur} έτη · Λήξη: ${ea}</p>
+    <div class="pbg ${tr2?'two':'one'}">
+      ${pb.map(b=>`<div class="pb"><h3>${b.t}</h3><p>${b.p}</p></div>`).join('')}
+    </div>
+    <div class="bnr"><span>Η ασφάλεια πληρώνει τον κίνδυνο που θα εμφανιστεί 1ος — και λήγει.</span></div>
+  `));
+
+  // ── SLIDES 4+: ΚΕΦΑΛΑΙΟ COVERAGE
+  // Logic: if no scenarios → 1 slide with all 3 capitals cost
+  //        if scenarios → 1 slide per capital level (max 3 slides, each fits both scenarios)
+  const capDefs=[
+    {pct:'100%',lbl:'Ιδανικό',cap:ideal,b:'id'},
+    {pct:'50%',lbl:'Αναγκαίο',cap:ideal/2,b:'gy'},
+    {pct:'25%',lbl:'Ελάχιστο',cap:ideal/4,b:'gy'},
+  ];
+  const hasScen=i.scFr||i.scAn;
+
+  if(!hasScen){
+    // All 3 capitals in 1 slide
+    h+=S(H('Κόστος Κάλυψης — NN Orange Life')+B(`
+      <div class="caps-all">
+        ${capDefs.map(cl=>{
+          const c=cd(cl.cap);
+          return `<div class="cap-row">
+            <div class="cap-name"><span class="badge ${cl.b}" style="font-size:1.2%">${cl.lbl} ${cl.pct}</span><br>€${N(cl.cap)}</div>
+            <div class="cv2"><div class="ml">Μηνιαίο ασφάλιστρο Life</div><div class="mv ac">€${D2(c.mon)}</div></div>
+            <div class="cv2"><div class="ml">Ημερήσιο ασφάλιστρο Life</div><div class="mv">€${D2(c.day)}</div></div>
+          </div>`;
+        }).join('')}
+      </div>
+      <p style="font-size:1.2%;color:#aaa;margin-top:1.5%">1ο έτος: +€${D2((pr(i.age,ideal,tr2,true)-pr(i.age,ideal,tr2,false))/12)} δικαίωμα ασφαλιστηρίου (μηνιαίο)</p>
+    `));
+  } else {
+    // 1 slide per capital, scenarios inside each
+    capDefs.forEach(cl=>{
+      const c=cd(cl.cap);
+      const numScen=(i.scFr?1:0)+(i.scAn?1:0);
+      let scenH='';
+      if(i.scFr) scenH+=`<div class="scen fr">
+        <div class="stag">Δωρεάν Εξασφάλιση — Accelerator (${i.ret}%/έτος)</div>
+        <div class="si">
+          <div class="scen-l"><div class="sbig">€${D2(c.mFr)}/μήνα</div><div class="ssub">€${D2(c.mFr*12/365)}/ημέρα</div></div>
+          <div class="scen-r">Αποδίδει <strong>€${N(c.fvFr)}</strong> στη λήξη<br>Καλύπτει ασφάλιστρα Life €${N(c.totLife)}<br><strong>→ Η κάλυψη Life γίνεται ΔΩΡΕΑΝ</strong></div>
+        </div></div>`;
+      if(i.scAn) scenH+=`<div class="scen an">
+        <div class="stag">Ό,τι και αν Συμβεί — Accelerator (${i.ret}%/έτος)</div>
+        <div class="si">
+          <div class="scen-l"><div class="sbig">€${D2(c.mAn)}/μήνα</div><div class="ssub">€${D2(c.mAn*12/365)}/ημέρα</div></div>
+          <div class="scen-r">Μαζεύει ακριβώς <strong>€${N(cl.cap)}</strong> στη λήξη<br>Αν συμβεί → Life πληρώνει €${N(cl.cap)}<br><strong>→ Ό,τι και αν συμβεί, το κεφάλαιο είναι εξασφαλισμένο</strong></div>
+        </div></div>`;
+
+      h+=S(H(`Κάλυψη — ${cl.lbl} Κεφάλαιο (${cl.pct})`)+B(`
+        <div class="cap-hdr">
+          <span class="badge ${cl.b}">${cl.lbl} ${cl.pct}</span>
+          <span class="capbig">€${N(cl.cap)}</span>
+        </div>
+        <div class="mr">
+          <div class="ms"><div class="ml">Μηνιαίο ασφάλιστρο Life</div><div class="mv ac">€${D2(c.mon)}</div><div class="msub">1ο έτος: €${D2(c.first/12)} (με δικαίωμα)</div></div>
+          <div class="ms"><div class="ml">Ημερήσιο ασφάλιστρο Life</div><div class="mv">€${D2(c.day)}</div><div class="msub">${pL}</div></div>
+        </div>
+        <div class="scen-grid ${numScen===2?'s2':'s1'}">${scenH}</div>
+      `));
+    });
+  }
+
+  // SCHEDULE
+  if(i.shSc&&sched.length>0){
+    let rows='',cum=0;
+    sched.forEach(r=>{cum+=r.p;rows+=`<tr><td>${r.yr}</td><td>${r.age}</td><td>€${D2(r.p)}</td><td>€${D2(r.p/12)}</td><td>€${D2(cum)}</td></tr>`;});
+    h+=S(H('Ετήσιες Καταβολές — Ιδανικό Κεφάλαιο €'+N(ideal))+B(`
+      <table class="stbl">
+        <thead><tr><th>Έτος</th><th>Ηλικία</th><th>Ετήσιο</th><th>Μηνιαίο</th><th>Σωρευτικό</th></tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr><td colspan="2">Σύνολο</td><td>€${D2(cum)}</td><td>—</td><td>€${D2(cum)}</td></tr></tfoot>
+      </table>
+    `));
+  }
+
+  // HISTORY
+  if(i.shHi){
+    const mx=Math.max(...HV);
+    h+=S(H('Ιστορική Απόδοση 25 Ετών — Global Equities Multifund (€10.000/έτος)')+B(`
+      <div class="hst">
+        <div class="hs"><div class="hl">Αξία στη λήξη</div><div class="hv ac">€1.382.580</div></div>
+        <div class="hs"><div class="hl">Συνολικές καταβολές</div><div class="hv">€364.593</div></div>
+        <div class="hs"><div class="hl">Απόδοση χρημάτων</div><div class="hv">279,21%</div></div>
+      </div>
+      <div class="hbars">
+        ${HV.map((v,idx)=>{const pct=(v/mx*100).toFixed(1),r=HR[idx];const rs=r===null?'—':(r>0?`<span style="color:#2a8a5a">+${r}%</span>`:`<span style="color:#c0392b">${r}%</span>`);return `<div class="hbar"><div class="hy">${idx+1}</div><div class="ho"><div class="hi" style="width:${pct}%"></div></div><div class="ha">€${N(v)} ${rs}</div></div>`;}).join('')}
+      </div>
+      <div class="disc">Ακόμα και μέσα από κρίσεις (11η Σεπτ., Lehman, Covid, Ουκρανία) η επένδυση τετραπλασίασε τις καταβολές. Παρελθοντικές αποδόσεις δεν εγγυώνται μελλοντικά αποτελέσματα.</div>
+    `));
+  }
+
+  // FUNDS
+  if(i.shFu){
+    h+=S(H('Τα 9 Funds του Accelerator — Global Equities Multifund Strategy (Passive)','or')+B(`
+      <p style="font-size:1.4%;color:#666;margin-bottom:1.2%">Οικονομική ισχύς BlackRock + Vanguard: <strong>$19.9 Τρισ. AUM</strong></p>
+      <div class="fg">
+        ${FU.map(f=>`<div class="fund"><div class="fn">${f.n}</div><div class="ft">${f.t}</div>
+        <div class="fp"><span>1Υ <strong>${f.p1}</strong></span><span>3Υ <strong>${f.p3}</strong></span><span>5Υ <strong>${f.p5}</strong></span></div></div>`).join('')}
+      </div>
+    `));
+  }
+
+  // CLOSING
+  h+=S(`<div class="cl">
+    <h2>Οι μελλοντικές σου αποδόσεις ξεκινούν<br><span>με μια απόφαση σήμερα.</span></h2>
+    <div class="d2">Οι προβολές βασίζονται σε ιστορικές αποδόσεις του Global Equities Multifund Strategy Passive.<br>Παρελθοντικές αποδόσεις δεν εγγυώνται μελλοντικά αποτελέσματα. Αποκλειστικά ενημερωτικός χαρακτήρας.</div>
+  </div>`);
+
+  sw.innerHTML=h;
+  document.getElementById('er').style.display='grid';
+}
+
+// ── PPTX ──
+async function xPPTX(){
+  if(!D){alert('Δεν υπάρχουν δεδομένα.');return;}
+  const btn=document.querySelector('.bp');btn.textContent='⏳...';btn.disabled=true;
+  if(!window.PptxGenJS){
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';
+      s.onload=res;s.onerror=()=>rej(new Error('Αποτυχία φόρτωσης'));
+      document.head.appendChild(s);
+    }).catch(e=>{alert(e.message);btn.textContent='⬇ PPTX';btn.disabled=false;throw e;});
+  }
+  try{
+    const d=D,OR='E8620A',BG='1A1A1A',WH='FFFFFF',LG='F5F4F1',GR='888888',DG='444444';
+    const pres=new window.PptxGenJS();
+    pres.layout='LAYOUT_16x9';pres.title='NN Life — '+d.nm;
+    const W=10,H=5.625,pL=d.tr2?'NN Orange Life Plus (TR2&3)':'NN Orange Life (TR1)';
+    const firstName=d.nm?d.nm.split(' ')[0]:'πελάτη';
+    function Rc(sl,x,y,w,h,c,lc){sl.addShape(pres.shapes.RECTANGLE,{x,y,w,h,fill:{color:c},line:{color:lc||c}});}
+    function T(sl,txt,x,y,w,h,o){sl.addText(txt,{x,y,w,h,...o});}
+    function miniCard(sl,x,y,w,h,lbl,val,ac){
+      Rc(sl,x,y,w,h,LG);Rc(sl,x,y,0.05,h,OR);
+      T(sl,lbl,x+0.14,y+0.1,w-0.18,0.25,{fontSize:9,color:GR,fontFace:'Calibri'});
+      T(sl,val,x+0.14,y+0.36,w-0.18,h-0.46,{fontSize:ac?18:16,bold:true,color:ac?OR:BG,fontFace:'Calibri'});
+    }
+
+    // COVER
+    let sl=pres.addSlide();sl.background={color:BG};
+    Rc(sl,0,0,0.07,H,OR);
+    T(sl,'ΑΣΦΑΛΙΣΤΙΚΗ ΠΡΟΤΑΣΗ',0.3,0.6,9,0.32,{fontSize:10,color:OR,bold:true,charSpacing:5,fontFace:'Calibri'});
+    T(sl,d.nm||'—',0.3,1.05,9,1.0,{fontSize:36,color:WH,bold:false,fontFace:'Calibri Light'});
+    T(sl,[d.occ,d.sta,'Ηλικία: '+d.age].filter(Boolean).join('   |   '),0.3,2.18,9,0.36,{fontSize:12,color:GR,fontFace:'Calibri'});
+    Rc(sl,0.3,2.7,9.4,0.02,OR);
+    T(sl,pL+'   ·   Λήξη: '+d.ea+'   ·   '+new Date().toLocaleDateString('el-GR'),0.3,2.85,9.4,0.34,{fontSize:11,color:'BBBBBB',fontFace:'Calibri'});
+
+    // FUTURE VALUE
+    sl=pres.addSlide();sl.background={color:WH};
+    Rc(sl,0,0,W,0.6,BG);T(sl,'Η ΜΕΛΛΟΝΤΙΚΗ ΣΟΥ ΟΙΚΟΝΟΜΙΚΗ ΑΞΙΑ',0.4,0.1,9,0.4,{fontSize:13,color:WH,bold:true,fontFace:'Calibri'});
+    T(sl,'Αγαπητέ '+firstName+', η πιο σημαντική σου περιουσία είναι τα μελλοντικά σου εισοδήματα — αποτέλεσμα της ικανότητάς σου να εργάζεσαι. Αυτό θέλουμε να προστατέψουμε.',0.35,0.72,9.3,0.44,{fontSize:11,color:DG,fontFace:'Calibri'});
+    Rc(sl,0.3,1.24,9.4,1.05,LG);
+    T(sl,'Μ.Ο. Εισοδήματος × Έτη έως σύνταξη × 80%',0.5,1.33,9,0.32,{fontSize:13,color:OR,bold:true,align:'center',fontFace:'Calibri'});
+    T(sl,'€'+N(d.inc)+' × '+d.yrs+' × 80%  =  €'+N(d.ideal),0.5,1.7,9,0.48,{fontSize:20,color:BG,bold:true,align:'center',fontFace:'Calibri'});
+    [['ΙΔΑΝΙΚΟ 100%','€'+N(d.ideal),true],['ΑΝΑΓΚΑΙΟ 50%','€'+N(d.ideal/2),false],['ΕΛΑΧΙΣΤΟ 25%','€'+N(d.ideal/4),false]].forEach(([l,v,ac],idx)=>{
+      const x=0.3+idx*3.17;
+      if(ac){sl.addShape(pres.shapes.RECTANGLE,{x,y:2.42,w:3.0,h:2.85,fill:{color:'FFF8F4'},line:{color:OR,width:1.5}});}
+      else Rc(sl,x,2.42,3.0,2.85,LG);
+      T(sl,l,x+0.15,2.55,2.8,0.3,{fontSize:9,color:OR,bold:true,charSpacing:2,fontFace:'Calibri'});
+      T(sl,v,x+0.15,2.92,2.8,0.62,{fontSize:20,bold:true,color:ac?OR:BG,fontFace:'Calibri'});
+    });
+
+    // PROTECT
+    sl=pres.addSlide();sl.background={color:WH};
+    Rc(sl,0,0,W,0.6,OR);T(sl,'Τι Θέλουμε να Προστατέψουμε',0.4,0.1,9,0.4,{fontSize:13,color:WH,bold:true,fontFace:'Calibri'});
+    T(sl,pL+' · Διάρκεια: '+d.dur+' έτη · Λήξη: '+d.ea,0.4,0.7,9,0.27,{fontSize:10,color:GR,fontFace:'Calibri'});
+    const pbd=d.tr2?[['Απώλεια Ζωής','Αν φύγεις νωρίς, η οικογένειά σου λαμβάνει αμέσως το κεφάλαιο.'],['Μόνιμη Ολική Ανικανότητα (ΜΟΑ)','Αν χάσεις την ικανότητα εργασίας, λαμβάνεις το κεφάλαιο ΕΣΥ.']]:[['Απώλεια Ζωής','Αν φύγεις νωρίς, η οικογένειά σου λαμβάνει αμέσως το ασφαλισμένο κεφάλαιο.']];
+    pbd.forEach(([t,p],idx)=>{
+      const bw=d.tr2?4.55:9.4,bx=d.tr2?0.3+idx*4.75:0.3;
+      Rc(sl,bx,1.06,bw,3.22,LG);Rc(sl,bx,1.06,0.05,3.22,OR);
+      T(sl,t,bx+0.2,1.18,bw-0.3,0.42,{fontSize:14,bold:true,color:BG,fontFace:'Calibri'});
+      T(sl,p,bx+0.2,1.74,bw-0.3,1.6,{fontSize:11,color:DG,fontFace:'Calibri',lineSpacingMultiple:1.3});
+    });
+    Rc(sl,0.3,4.42,9.4,0.6,'1A1A1A');
+    T(sl,'Η ασφάλεια πληρώνει τον κίνδυνο που θα εμφανιστεί 1ος — και λήγει.',0.5,4.55,9,0.34,{fontSize:12,color:OR,bold:true,align:'center',fontFace:'Calibri'});
+
+    // CAPITAL SLIDES
+    const capDefs2=[{pct:'100%',lbl:'Ιδανικό',cap:d.ideal},{pct:'50%',lbl:'Αναγκαίο',cap:d.ideal/2},{pct:'25%',lbl:'Ελάχιστο',cap:d.ideal/4}];
+    const hasScen2=d.scFr||d.scAn;
+
+    if(!hasScen2){
+      // 1 slide all 3 capitals
+      sl=pres.addSlide();sl.background={color:WH};
+      Rc(sl,0,0,W,0.6,BG);T(sl,'ΚΟΣΤΟΣ ΚΑΛΥΨΗΣ — NN ORANGE LIFE',0.4,0.1,9,0.4,{fontSize:13,color:WH,bold:true,fontFace:'Calibri'});
+      capDefs2.forEach((cl,ri)=>{
+        const c2=function(cap){const ann=pr(d.age,cap,d.tr2,false)||0;return{mon:ann/12,day:ann/365};}(cl.cap);
+        const ry=0.8+ri*1.55;
+        T(sl,cl.lbl+' ('+cl.pct+')  ·  €'+N(cl.cap),0.35,ry+0.05,3.5,0.38,{fontSize:11,bold:true,color:BG,fontFace:'Calibri'});
+        miniCard(sl,3.9,ry,2.95,1.3,'Μηνιαίο ασφάλιστρο Life','€'+D2(c2.mon),true);
+        miniCard(sl,7.0,ry,2.75,1.3,'Ημερήσιο','€'+D2(c2.day),false);
+      });
+    } else {
+      capDefs2.forEach(cl=>{
+        const c2=function(cap){
+          const ratio=cap/d.ideal,totLife=d.totI*ratio;
+          const ann=pr(d.age,cap,d.tr2,false)||0,first=pr(d.age,cap,d.tr2,true)||0;
+          const mon=ann/12,day=ann/365;
+          const mFr=d.scFr?pmt(totLife,d.ret,d.dur):0;
+          const mAn=d.scAn?pmt(cap,d.ret,d.dur):0;
+          return{cap,totLife,mon,day,first,mFr,mAn,fvFr:mFr*fvF(d.ret,d.dur),fvAn:mAn*fvF(d.ret,d.dur)};
+        }(cl.cap);
+        sl=pres.addSlide();sl.background={color:WH};
+        Rc(sl,0,0,W,0.6,BG);
+        T(sl,'ΚΑΛΥΨΗ — '+cl.lbl.toUpperCase()+' ('+cl.pct+')   €'+N(cl.cap),0.4,0.1,9.2,0.4,{fontSize:12,color:WH,bold:true,fontFace:'Calibri'});
+        miniCard(sl,0.3,0.7,4.6,0.92,'Μηνιαίο ασφάλιστρο Life','€'+D2(c2.mon),true);
+        miniCard(sl,5.1,0.7,4.6,0.92,'Ημερήσιο ασφάλιστρο Life','€'+D2(c2.day),false);
+        let yy=1.75;
+        if(d.scFr){
+          sl.addShape(pres.shapes.RECTANGLE,{x:0.3,y:yy,w:9.4,h:1.42,fill:{color:'FFF8F4'},line:{color:OR,width:1.5}});
+          Rc(sl,0.3,yy,0.05,1.42,OR);
+          T(sl,'ΔΩΡΕΑΝ ΕΞΑΣΦΑΛΙΣΗ — ACCELERATOR ('+d.ret+'%/έτος)',0.5,yy+0.1,5,0.26,{fontSize:9,color:OR,bold:true,charSpacing:2,fontFace:'Calibri'});
+          T(sl,'€'+D2(c2.mFr)+'/μήνα',0.5,yy+0.38,3.8,0.5,{fontSize:22,bold:true,color:OR,fontFace:'Calibri'});
+          T(sl,'€'+D2(c2.mFr*12/365)+'/ημέρα',0.5,yy+0.9,3.8,0.27,{fontSize:10,color:GR,fontFace:'Calibri'});
+          T(sl,'Αποδίδει €'+N(c2.fvFr)+' στη λήξη\nΚαλύπτει ασφάλιστρα Life €'+N(c2.totLife)+'\n→ Η κάλυψη Life γίνεται ΔΩΡΕΑΝ',5.1,yy+0.24,4.4,1.05,{fontSize:10,color:DG,fontFace:'Calibri',lineSpacingMultiple:1.35});
+          yy+=1.57;
+        }
+        if(d.scAn){
+          Rc(sl,0.3,yy,9.4,1.42,LG);Rc(sl,0.3,yy,0.05,1.42,DG);
+          T(sl,'Ο,ΤΙ ΚΑΙ ΑΝ ΣΥΜΒΕΙ — ACCELERATOR ('+d.ret+'%/έτος)',0.5,yy+0.1,5,0.26,{fontSize:9,color:DG,bold:true,charSpacing:2,fontFace:'Calibri'});
+          T(sl,'€'+D2(c2.mAn)+'/μήνα',0.5,yy+0.38,3.8,0.5,{fontSize:22,bold:true,color:BG,fontFace:'Calibri'});
+          T(sl,'€'+D2(c2.mAn*12/365)+'/ημέρα',0.5,yy+0.9,3.8,0.27,{fontSize:10,color:GR,fontFace:'Calibri'});
+          T(sl,'Μαζεύει ακριβώς €'+N(cl.cap)+' στη λήξη\nΑν συμβεί → Life πληρώνει €'+N(cl.cap)+'\nΑν όχι → Acc αποδίδει €'+N(cl.cap),5.1,yy+0.24,4.4,1.05,{fontSize:10,color:DG,fontFace:'Calibri',lineSpacingMultiple:1.35});
+        }
+      });
+    }
+
+    // HISTORY
+    if(d.shHi){
+      sl=pres.addSlide();sl.background={color:WH};
+      Rc(sl,0,0,W,0.6,BG);T(sl,'ΙΣΤΟΡΙΚΗ ΑΠΟΔΟΣΗ 25 ΕΤΩΝ — Global Equities Multifund (€10.000/έτος)',0.4,0.1,9.2,0.4,{fontSize:11,color:WH,bold:true,fontFace:'Calibri'});
+      miniCard(sl,0.3,0.7,3.0,0.86,'Αξία στη λήξη','€1.382.580',true);
+      miniCard(sl,3.5,0.7,3.0,0.86,'Συνολικές καταβολές','€364.593',false);
+      miniCard(sl,6.7,0.7,3.0,0.86,'Απόδοση χρημάτων','279,21%',false);
+      sl.addChart(pres.charts.LINE,[{name:'Αξία (€)',labels:HV.map((_,idx)=>String(idx+1)),values:HV}],{
+        x:0.3,y:1.68,w:9.4,h:3.65,lineSize:2.5,lineSmooth:true,
+        chartColors:[OR],chartArea:{fill:{color:WH}},
+        catAxisLabelColor:GR,valAxisLabelColor:GR,
+        valGridLine:{color:'EEEEEE',size:0.5},catGridLine:{style:'none'},showLegend:false
+      });
+    }
+
+    // FUNDS
+    if(d.shFu){
+      sl=pres.addSlide();sl.background={color:WH};
+      Rc(sl,0,0,W,0.6,OR);T(sl,'ΤΑ 9 FUNDS ΤΟΥ ACCELERATOR',0.4,0.1,9.2,0.4,{fontSize:12,color:WH,bold:true,fontFace:'Calibri'});
+      T(sl,'BlackRock + Vanguard: $19.9 Τρισ. AUM',0.4,0.67,9,0.26,{fontSize:10,color:GR,fontFace:'Calibri'});
+      FU.forEach((f,idx)=>{
+        const col=idx%3,row=Math.floor(idx/3),fx=0.18+col*3.27,fy=1.02+row*1.5;
+        Rc(sl,fx,fy,3.07,1.32,LG);Rc(sl,fx,fy,0.05,1.32,OR);
+        T(sl,f.n,fx+0.13,fy+0.08,2.87,0.42,{fontSize:8.5,bold:true,color:BG,fontFace:'Calibri'});
+        T(sl,f.t,fx+0.13,fy+0.5,2.87,0.22,{fontSize:8,color:OR,fontFace:'Calibri'});
+        T(sl,'1Υ: '+f.p1+'  3Υ: '+f.p3+'  5Υ: '+f.p5,fx+0.13,fy+0.76,2.87,0.28,{fontSize:8.5,color:DG,fontFace:'Calibri'});
+      });
+    }
+
+    // CLOSING
+    sl=pres.addSlide();sl.background={color:BG};
+    Rc(sl,0,0,0.07,H,OR);
+    T(sl,'Οι μελλοντικές σου αποδόσεις ξεκινούν',0.4,1.6,9,0.62,{fontSize:26,color:WH,fontFace:'Calibri Light'});
+    T(sl,'με μια απόφαση σήμερα.',0.4,2.2,9,0.62,{fontSize:26,color:OR,fontFace:'Calibri Light'});
+    T(sl,'Παρελθοντικές αποδόσεις δεν εγγυώνται μελλοντικά αποτελέσματα.',0.4,5.05,9.2,0.38,{fontSize:8,color:GR,fontFace:'Calibri'});
+
+    await pres.writeFile({fileName:'NN_Life_'+(d.nm||'pelatis').replace(/\s+/g,'_')+'.pptx'});
+    btn.textContent='⬇ PPTX';btn.disabled=false;
+  }catch(e){alert('Σφάλμα: '+e.message);btn.textContent='⬇ PPTX';btn.disabled=false;}
+}
+
+// ── PDF ──
+function xPDF(){
+  if(!D){alert('Δεν υπάρχουν δεδομένα.');return;}
+  const d=D,pL=d.tr2?'NN Orange Life Plus (TR2&3)':'NN Orange Life (TR1)';
+  const firstName=d.nm?d.nm.split(' ')[0]:'πελάτη';
+  const css=`<style>*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif}body{background:#fff;color:#1a1a1a}
+  .pg{max-width:780px;margin:0 auto;padding:20px;page-break-after:always}
+  h1{font-size:20px;font-weight:300;margin-bottom:4px}h2{font-size:11px;font-weight:700;color:#E8620A;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 7px;padding-bottom:2px;border-bottom:1px solid #eee}
+  .sub{font-size:10px;color:#888;margin-bottom:14px}
+  .fb{background:#F5F4F1;border-radius:5px;padding:11px;text-align:center;margin-bottom:10px}
+  .fb .eq{font-size:11px;color:#E8620A;font-weight:700;margin-bottom:3px}.fb .res{font-size:16px;font-weight:700}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:9px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
+  .card{background:#F5F4F1;border-radius:4px;padding:8px 10px;border-left:3px solid #E8620A}
+  .lbl{font-size:9px;color:#888;font-weight:600;text-transform:uppercase;margin-bottom:2px}
+  .val{font-size:15px;font-weight:700}.ac{color:#E8620A}
+  .sc{border-radius:5px;padding:9px 11px;margin-bottom:6px}
+  .sf{background:#FFF8F4;border:1.5px solid #E8620A}.sa{background:#F5F4F1;border:1.5px solid #ddd}
+  .stag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+  .sf .stag{color:#E8620A}.sa .stag{color:#444}
+  .sbig{font-size:15px;font-weight:700;margin-bottom:2px}.sf .sbig{color:#E8620A}
+  .sd{font-size:10px;color:#444;line-height:1.5;margin-top:3px}
+  .note{font-size:9px;color:#aaa;margin-top:9px;padding-top:7px;border-top:1px solid #eee;line-height:1.5}
+  @media print{.pg{page-break-after:always}}</style>`;
+
+  let body=`<div class="pg">
+    <h1>${d.nm||'—'}</h1>
+    <div class="sub">${[d.occ,d.sta,'Ηλικία: '+d.age,'Λήξη: '+d.ea,pL].filter(Boolean).join(' · ')}</div>
+    <h2>Μελλοντική Οικονομική Αξία</h2>
+    <p style="font-size:11px;color:#555;margin-bottom:10px;line-height:1.6">Αγαπητέ <strong>${firstName}</strong>, η πιο σημαντική σου περιουσία είναι τα μελλοντικά σου εισοδήματα — αποτέλεσμα της ικανότητάς σου να εργάζεσαι και να παράγεις. Αυτό θέλουμε να προστατέψουμε.</p>
+    <div class="fb"><div class="eq">€${N(d.inc)} × ${d.yrs} × 80%</div><div class="res">= <span style="color:#E8620A">€${N(d.ideal)}</span></div></div>
+    <div class="g3">
+      <div class="card"><div class="lbl">Ιδανικό 100%</div><div class="val ac">€${N(d.ideal)}</div></div>
+      <div class="card"><div class="lbl">Αναγκαίο 50%</div><div class="val">€${N(d.ideal/2)}</div></div>
+      <div class="card"><div class="lbl">Ελάχιστο 25%</div><div class="val">€${N(d.ideal/4)}</div></div>
+    </div>`;
+
+  [{pct:'100%',lbl:'Ιδανικό',cap:d.ideal},{pct:'50%',lbl:'Αναγκαίο',cap:d.ideal/2},{pct:'25%',lbl:'Ελάχιστο',cap:d.ideal/4}].forEach(cl=>{
+    const ratio=cl.cap/d.ideal,totLife=d.totI*ratio;
+    const ann=pr(d.age,cl.cap,d.tr2,false)||0,mon=ann/12,day=ann/365;
+    const mFr=d.scFr?pmt(totLife,d.ret,d.dur):0;
+    const mAn=d.scAn?pmt(cl.cap,d.ret,d.dur):0;
+    body+=`<h2>${cl.lbl} (${cl.pct}) — €${N(cl.cap)}</h2>
+    <div class="g2">
+      <div class="card"><div class="lbl">Μηνιαίο Life</div><div class="val ac">€${D2(mon)}</div></div>
+      <div class="card"><div class="lbl">Ημερήσιο Life</div><div class="val">€${D2(day)}</div></div>
+    </div>`;
+    if(d.scFr) body+=`<div class="sc sf"><div class="stag">Δωρεάν Εξασφάλιση — Accelerator (${d.ret}%/έτος)</div><div class="sbig">€${D2(mFr)}/μήνα · €${D2(mFr*12/365)}/ημέρα</div><div class="sd">Αποδίδει €${N(mFr*fvF(d.ret,d.dur))} → καλύπτει ασφάλιστρα Life €${N(totLife)} → ΔΩΡΕΑΝ κάλυψη</div></div>`;
+    if(d.scAn) body+=`<div class="sc sa"><div class="stag">Ό,τι και αν Συμβεί — Accelerator (${d.ret}%/έτος)</div><div class="sbig">€${D2(mAn)}/μήνα · €${D2(mAn*12/365)}/ημέρα</div><div class="sd">Μαζεύει ακριβώς €${N(cl.cap)}. Αν συμβεί → Life πληρώνει €${N(cl.cap)}. Αν όχι → Acc αποδίδει €${N(cl.cap)}</div></div>`;
+  });
+  body+=`<div class="note">Απόδοση Accelerator: ${d.ret}%/έτος · Παρελθοντικές αποδόσεις δεν εγγυώνται μελλοντικά αποτελέσματα.</div></div>`;
+
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>NN Life — ${d.nm||''}</title>${css}</head><body>${body}</body></html>`);
+  w.document.close();setTimeout(()=>w.print(),400);
+}
+</script>
+</body>
+</html>
